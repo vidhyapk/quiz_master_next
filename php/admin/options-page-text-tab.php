@@ -87,6 +87,9 @@ function mlw_options_text_tab_content() {
 			<span class="template_name">%USER_ANSWER%</span> - <?php _e('The answer the user gave for the question', 'quiz-master-next'); ?>
 		</div>
 		<div class="template_variable">
+			<span class="template_name">%USER_QUESTION_ANSWER_MARK%</span> - <?php _e('The answer the user gave for the question with mark', 'quiz-master-next'); ?>
+		</div>
+		<div class="template_variable">
 			<span class="template_name">%CORRECT_ANSWER%</span> - <?php _e('The correct answer for the question', 'quiz-master-next'); ?>
 		</div>
 		<div class="template_variable">

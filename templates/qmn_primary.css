@@ -472,3 +472,12 @@ border: 1px solid #e3e3e3;
     display: inline-block;
     cursor: pointer;
 }
+
+.qsm-results-page .mlw_qmn_question {padding: 10px;border-bottom: 1px solid #e2e2e2;}
+.qsm-results-page .qmn_show_answer_wrap{margin: 0;padding: 5px 0;box-sizing: border-box;border-bottom: 1px solid #e2e2e2;}
+.qsm-results-page .qmn_show_answer_wrap.green-text{color: #008000;}
+.qsm-results-page .qmn_show_answer_wrap.red-text{color: #ff2b2b;}
+.qsm-results-page .qmn_show_answer_wrap .correct,
+.qsm-results-page .qmn_show_answer_wrap .incorrect{font-weight: bold;padding: 0 10px;}
+.qsm-results-page .qmn_show_answer_wrap .correct{color: #008000;}
+.qsm-results-page .qmn_show_answer_wrap .incorrect{color: #ff2b2b;}

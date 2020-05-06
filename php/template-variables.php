@@ -285,23 +285,22 @@ function qsm_all_contact_fields_variable( $content, $results ) {
  * @param string $content The content to be checked for the template
  * @param array  $mlw_quiz_array The array for the response data
  */
-function mlw_qmn_variable_question_answers( $content, $mlw_quiz_array ) {
-
+function mlw_qmn_variable_question_answers($content, $mlw_quiz_array) {
 	// Checks if the variable is present in the content.
-	while ( strpos( $content, '%QUESTIONS_ANSWERS%' ) !== false ) {
+	while (strpos($content, '%QUESTIONS_ANSWERS%') !== false) {
 		global $mlwQuizMasterNext;
 		global $wpdb;
 		$display = '';
-		$qmn_question_answer_template = $mlwQuizMasterNext->pluginHelper->get_section_setting( 'quiz_text', 'question_answer_template', '%QUESTION%<br/>Answer Provided: %USER_ANSWER%<br/>Correct Answer: %CORRECT_ANSWER%<br/>Comments Entered: %USER_COMMENTS%' );                
-		$questions = QSM_Questions::load_questions_by_pages( $mlw_quiz_array['quiz_id'] );
+		$qmn_question_answer_template = $mlwQuizMasterNext->pluginHelper->get_section_setting('quiz_text', 'question_answer_template', '%QUESTION%<br/>Answer Provided: %USER_ANSWER%<br/>Correct Answer: %CORRECT_ANSWER%<br/>Comments Entered: %USER_COMMENTS%');
+		$questions = QSM_Questions::load_questions_by_pages($mlw_quiz_array['quiz_id']);
 		$qmn_questions = array();
-		foreach ( $questions as $question ) {
-			$qmn_questions[ $question['question_id'] ] = $question['question_answer_info'];
+		foreach ($questions as $question) {
+			$qmn_questions[$question['question_id']] = $question['question_answer_info'];
 		}
-                
+
 		// Cycles through each answer in the responses.                
-		foreach ( $mlw_quiz_array['question_answers_array'] as $answer ) {
-			if ( $answer["correct"] === "correct" ){
+		foreach ($mlw_quiz_array['question_answers_array'] as $answer) {
+			if ($answer["correct"] === "correct") {
 				$user_answer_class = "qmn_user_correct_answer";
 				$question_answer_class = "qmn_question_answer_correct";
 			} else {
@@ -309,23 +308,31 @@ function mlw_qmn_variable_question_answers( $content, $mlw_quiz_array ) {
 				$question_answer_class = "qmn_question_answer_incorrect";
 			}
 			$mlw_question_answer_display = htmlspecialchars_decode($qmn_question_answer_template, ENT_QUOTES);
-			$mlw_question_answer_display = str_replace( "%QUESTION%" , '<b>' . htmlspecialchars_decode($answer[0], ENT_QUOTES) . '</b>', $mlw_question_answer_display);
-                        if($answer['question_type'] == 11){
-                            $file_extension = substr($answer[1], -4);
-                            if($file_extension == '.jpg' || $file_extension == 'jepg' || $file_extension == '.png' || $file_extension == '.gif'){
-                                $mlw_question_answer_display = str_replace( "%USER_ANSWER%" , "<span class='$user_answer_class'><img src='$answer[1]'/></span>", $mlw_question_answer_display);
-                            }else{
-                                $mlw_question_answer_display = str_replace( "%USER_ANSWER%" , "<span class='$user_answer_class'>".trim( htmlspecialchars_decode($answer[1], ENT_QUOTES) ).'</span>', $mlw_question_answer_display);
-                            }                            
-                        }else{
-                            $mlw_question_answer_display = str_replace( "%USER_ANSWER%" , "<span class='$user_answer_class'>".htmlspecialchars_decode($answer[1], ENT_QUOTES).'</span>', $mlw_question_answer_display);
-                        }			
-			$mlw_question_answer_display = str_replace( "%CORRECT_ANSWER%" , htmlspecialchars_decode($answer[2], ENT_QUOTES), $mlw_question_answer_display);
-			$mlw_question_answer_display = str_replace( "%USER_COMMENTS%" , $answer[3], $mlw_question_answer_display);
-			$mlw_question_answer_display = str_replace( "%CORRECT_ANSWER_INFO%" , htmlspecialchars_decode($qmn_questions[$answer['id']], ENT_QUOTES), $mlw_question_answer_display);
-			$display .= "<div class='qmn_question_answer $question_answer_class'>".apply_filters('qmn_variable_question_answers', $mlw_question_answer_display, $mlw_quiz_array).'</div>';
+			$mlw_question_answer_display = str_replace("%QUESTION%", '<b>' . htmlspecialchars_decode($answer[0], ENT_QUOTES) . '</b>', $mlw_question_answer_display);
+			if ($answer['question_type'] == 11) {
+				$file_extension = substr($answer[1], -4);
+				if ($file_extension == '.jpg' || $file_extension == 'jepg' || $file_extension == '.png' || $file_extension == '.gif') {
+					$mlw_question_answer_display = str_replace("%USER_ANSWER%", "<span class='$user_answer_class'><img src='$answer[1]'/></span>", $mlw_question_answer_display);
+				} else {
+					$mlw_question_answer_display = str_replace("%USER_ANSWER%", "<span class='$user_answer_class'>" . trim(htmlspecialchars_decode($answer[1], ENT_QUOTES)) . '</span>', $mlw_question_answer_display);
+				}
+			} else {
+				$mlw_question_answer_display = str_replace("%USER_ANSWER%", "<span class='$user_answer_class'>" . htmlspecialchars_decode($answer[1], ENT_QUOTES) . '</span>', $mlw_question_answer_display);
+				
+				$question_id = $answer['id'];
+				$question = $questions[$question_id];
+				$answer_mark = "<div class='quiz_section question-section-id-".esc_attr($question_id)."'>";
+					$answer_mark .= $mlwQuizMasterNext->pluginHelper->display_question($question['question_type_new'], $question_id, $options, true, $answer);
+					$answer_mark .= "<br/><div class='correct_answer_info'>".htmlspecialchars_decode($qmn_questions[$answer['id']], ENT_QUOTES)."</div>";
+				$answer_mark .= "</div>";
+				$mlw_question_answer_display = str_replace("%USER_QUESTION_ANSWER_MARK%", $answer_mark, $mlw_question_answer_display);
+			}
+			$mlw_question_answer_display = str_replace("%CORRECT_ANSWER%", htmlspecialchars_decode($answer[2], ENT_QUOTES), $mlw_question_answer_display);
+			$mlw_question_answer_display = str_replace("%USER_COMMENTS%", $answer[3], $mlw_question_answer_display);
+			$mlw_question_answer_display = str_replace("%CORRECT_ANSWER_INFO%", htmlspecialchars_decode($qmn_questions[$answer['id']], ENT_QUOTES), $mlw_question_answer_display);
+			$display .= "<div class='qmn_question_answer $question_answer_class'>" . apply_filters('qmn_variable_question_answers', $mlw_question_answer_display, $mlw_quiz_array) . '</div>';
 		}
-		$content = str_replace( "%QUESTIONS_ANSWERS%" , $display, $content);
+		$content = str_replace("%QUESTIONS_ANSWERS%", $display, $content);
 	}
 	return $content;
 }

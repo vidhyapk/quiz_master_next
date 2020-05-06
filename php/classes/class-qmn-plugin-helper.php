@@ -356,7 +356,7 @@ class QMNPluginHelper {
 		* @param array $quiz_options An array of the columns of the quiz row from the database
 		* @return string The HTML for the question
 	  */
-	public function display_question($slug, $question_id, $quiz_options)
+	public function display_question($slug, $question_id, $quiz_options, $show_answer = false, $user_answer = array())
 	{
 		$display = '';
 		global $wpdb;
@@ -397,7 +397,7 @@ class QMNPluginHelper {
                                 if($quiz_options->show_category_on_front && $question->category != ''){
                                     $display .= '<div class="quiz-cat">[ ' . $question->category  .' ]</div>';
                                 }                                
-				$display .= call_user_func($type['display'], intval($question_id), $question->question_name, $answers);
+				$display .= call_user_func($type['display'], intval($question_id), $question->question_name, $answers,$show_answer, $user_answer);
 			}
 		}
 		return $display;

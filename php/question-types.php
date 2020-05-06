@@ -35,7 +35,7 @@ function qmn_question_type_file_upload(){
 * @return $question_display Contains all the content of the question
 * @since 6.3.7
 */
-function qmn_file_upload_display($id, $question, $answers)
+function qmn_file_upload_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
     $question_display = '';
     global $mlwQuizMasterNext;
@@ -98,7 +98,7 @@ function qmn_file_upload_review($id, $question, $answers){
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_multiple_choice_display($id, $question, $answers)
+function qmn_multiple_choice_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -116,16 +116,36 @@ function qmn_multiple_choice_display($id, $question, $answers)
       $mlw_answer_total++;
       if ($answer[0] != "")
       {
+		$answer_mark = $wrapper_class = $field_attr = '';
+		if ($show_answer) {
+			$wrapper_class .= 'qmn_show_answer_wrap';
+			$field_attr = 'disabled="disabled"';
+			if ($answer[2] == '1') {
+				$answer_mark = "<span class='qmn_mc_answer_mark correct'>✓</span>";
+				$wrapper_class .= ' green-text';
+			} else {
+				$answer_mark = "<span class='qmn_mc_answer_mark incorrect'>✗</span>";
+			}
+			if (!empty($user_answer[1]) && $answer[0] == $user_answer[1]) {
+				$field_attr .= ' checked="checked" ';
+				if ($answer[2] != '1') {
+					$wrapper_class .= ' red-text ';
+				}
+			}
+		}
         if($answerEditor === 'rich'){
-            $question_display .= "<div class='qmn_mc_answer_wrap' id='question$id-$mlw_answer_total'>";
+            $question_display .= "<div class='qmn_mc_answer_wrap {$wrapper_class}' id='question$id-$mlw_answer_total'>";
         }else{
-            $question_display .= "<div class='qmn_mc_answer_wrap' id='question".$id."-".esc_attr($answer[0])."'>";
-        }	
-        $question_display .= "<input type='radio' class='qmn_quiz_radio' name='question".$id."' id='question".$id."_".$mlw_answer_total."' value='". trim( htmlentities(esc_attr($answer[0])) ) ."' /> <label for='question".$id."_".$mlw_answer_total."'>". trim( htmlspecialchars_decode($answer[0], ENT_QUOTES) ) ."</label>";
-	$question_display .= "</div>";
+            $question_display .= "<div class='qmn_mc_answer_wrap {$wrapper_class}' id='question".$id."-".esc_attr($answer[0])."'>";
+        }
+        $question_display .= $answer_mark;
+        $question_display .= "<input type='radio' class='qmn_quiz_radio' name='question".$id."' id='question".$id."_".$mlw_answer_total."' value='". trim( htmlentities(esc_attr($answer[0])) ) ."' ".$field_attr."/> <label for='question".$id."_".$mlw_answer_total."'>". trim( htmlspecialchars_decode($answer[0], ENT_QUOTES) ) ."</label>";
+		$question_display .= "</div>";
       }
     }
-    $question_display .= "<input type='radio' style='display: none;' name='question".$id."' id='question".$id."_none' checked='checked' value='No Answer Provided' />";
+	if (!$show_answer) {
+		$question_display .= "<input type='radio' style='display: none;' name='question".$id."' id='question".$id."_none' checked='checked' value='No Answer Provided' />";
+	}
   }
   $question_display .= "</div>";
   return apply_filters('qmn_multiple_choice_display_front',$question_display,$id, $question, $answers);
@@ -194,7 +214,7 @@ function qmn_question_type_date(){
 * @return $question_display Contains all the content of the question
 * @since 6.3.7
 */
-function qmn_date_display($id, $question, $answers)
+function qmn_date_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
     $question_display = '';
     global $mlwQuizMasterNext;
@@ -265,7 +285,7 @@ function qmn_question_type_horizontal_multiple_choice()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_horizontal_multiple_choice_display($id, $question, $answers)
+function qmn_horizontal_multiple_choice_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -282,10 +302,33 @@ function qmn_horizontal_multiple_choice_display($id, $question, $answers)
       $mlw_answer_total++;
       if ($answer[0] != "")
       {
-        $question_display .= "<span class='mlw_horizontal_choice'><input type='radio' class='qmn_quiz_radio' name='question".$id."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /><label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."</label></span>";
+		$answer_mark = $wrapper_class = $field_attr = '';
+		$answer_mark = $wrapper_class = $field_attr = '';
+		if ($show_answer) {
+			$wrapper_class .= 'qmn_show_answer_wrap';
+			$field_attr = 'disabled="disabled"';
+			if ($answer[2] == '1') {
+				$answer_mark = "<span class='qmn_mc_answer_mark correct'>✓</span>";
+				$wrapper_class .= ' green-text ';
+			} else {
+				$answer_mark = "<span class='qmn_mc_answer_mark incorrect'>✗</span>";
+			}
+			if (!empty($user_answer[1]) && $answer[0] == $user_answer[1]) {
+				$field_attr .= ' checked="checked" ';
+				if ($answer[2] != '1') {
+					$wrapper_class .= ' red-text ';
+				}
+			}
+		}
+        $question_display .= "<span class='mlw_horizontal_choice ".$wrapper_class."'>";
+        $question_display .= $answer_mark;
+        $question_display .= "<input type='radio' ".$field_attr." class='qmn_quiz_radio' name='question".$id."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /><label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."</label>";
+        $question_display .= "</span>";
       }
     }
-    $question_display .= "<input type='radio' style='display: none;' name='question".$id."' id='question".$id."_none' checked='checked' value='No Answer Provided' />";
+	if (!$show_answer) {
+		$question_display .= "<input type='radio' style='display: none;' name='question".$id."' id='question".$id."_none' checked='checked' value='No Answer Provided' />";
+	}
   }
   $question_display .= "</div>";
   
@@ -356,7 +399,7 @@ function qmn_question_type_drop_down()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_drop_down_display($id, $question, $answers)
+function qmn_drop_down_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
     $question_display = '';
     global $mlwQuizMasterNext;
@@ -450,7 +493,7 @@ function qmn_question_type_small_open()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_small_open_display($id, $question, $answers)
+function qmn_small_open_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -527,7 +570,7 @@ function qmn_question_type_multiple_response()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_multiple_response_display($id, $question, $answers)
+function qmn_multiple_response_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = $limit_mr_text = '';
   global $mlwQuizMasterNext;
@@ -547,10 +590,31 @@ function qmn_multiple_response_display($id, $question, $answers)
       $mlw_answer_total++;
       if ($answer[0] != "")
       {
-				$question_display .= '<div class="qsm_check_answer">';
+		$answer_mark = $wrapper_class = $field_attr = '';
+		if ($show_answer) {
+			$wrapper_class .= 'qmn_show_answer_wrap';
+			$field_attr = 'disabled="disabled"';
+			if ($answer[2] == '1') {
+				$answer_mark = "<span class='qmn_mc_answer_mark correct'>✓</span>";
+				$wrapper_class .= ' green-text ';
+			} else {
+				$answer_mark = "<span class='qmn_mc_answer_mark incorrect'>✗</span>";
+			}
+			if (!empty($user_answer[1])) {
+				$provided_ans = explode('.', $user_answer[1]);
+				if (in_array($answer[0], $provided_ans)) {
+					$field_attr .= ' checked="checked" ';
+					if ($answer[2] != '1') {
+						$wrapper_class .= ' red-text ';
+					}
+				}
+			}
+		}
+		$question_display .= '<div class="qsm_check_answer '.$wrapper_class.'">';
+        $question_display .= $answer_mark;
         $question_display .= "<input type='hidden' name='question".$id."' value='This value does not matter' />";
-        $question_display .= "<input type='checkbox' " . $limit_mr_text ." name='question".$id."_".$mlw_answer_total."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /> <label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."</label>";
-				$question_display .= '</div>';
+        $question_display .= "<input type='checkbox' ".$field_attr." " . $limit_mr_text ." name='question".$id."_".$mlw_answer_total."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /> <label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."</label>";
+		$question_display .= '</div>';
       }
     }
   }
@@ -631,7 +695,7 @@ function qmn_question_type_large_open()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_large_open_display($id, $question, $answers)
+function qmn_large_open_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -713,7 +777,7 @@ function qmn_question_type_text_block()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_text_block_display($id, $question, $answers)
+function qmn_text_block_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   $question_display .= do_shortcode(htmlspecialchars_decode($question, ENT_QUOTES));
@@ -747,7 +811,7 @@ function qmn_question_type_number()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_number_display($id, $question, $answers)
+function qmn_number_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -828,7 +892,7 @@ function qmn_question_type_accept()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_accept_display($id, $question, $answers)
+function qmn_accept_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -874,7 +938,7 @@ function qmn_question_type_captcha()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_captcha_display($id, $question, $answers)
+function qmn_captcha_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -931,7 +995,7 @@ function qmn_question_type_horizontal_multiple_response()
 * @return $question_display Contains all the content of the question
 * @since 4.4.0
 */
-function qmn_horizontal_multiple_response_display($id, $question, $answers)
+function qmn_horizontal_multiple_response_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -948,8 +1012,32 @@ function qmn_horizontal_multiple_response_display($id, $question, $answers)
       $mlw_answer_total++;
       if ($answer[0] != "")
       {
+		$answer_mark = $wrapper_class = $field_attr = '';
+		if ($show_answer) {
+			$wrapper_class .= 'qmn_show_answer_wrap';
+			$field_attr = 'disabled="disabled"';
+			if ($answer[2] == '1') {
+				$answer_mark = "<span class='qmn_mc_answer_mark correct'>✓</span>";
+				$wrapper_class .= ' green-text ';
+			} else {
+				$answer_mark = "<span class='qmn_mc_answer_mark incorrect'>✗</span>";
+			}
+			if (!empty($user_answer[1])) {
+				$provided_ans = explode('.', $user_answer[1]);
+				if (in_array($answer[0], $provided_ans)) {
+					$field_attr .= ' checked="checked" ';
+					if ($answer[2] != '1') {
+						$wrapper_class .= ' red-text ';
+					}
+				}
+			}
+		}
+		$question_display .= "<span class='mlw_horizontal_multiple ".$wrapper_class."'>";
+        $question_display .= $answer_mark;
         $question_display .= "<input type='hidden' name='question".$id."' value='This value does not matter' />";
-        $question_display .= "<span class='mlw_horizontal_multiple'><input type='checkbox' name='question".$id."_".$mlw_answer_total."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /> <label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."&nbsp;</label></span>";
+        $question_display .= "<input type='checkbox' ".$field_attr." name='question".$id."_".$mlw_answer_total."' id='question".$id."_".$mlw_answer_total."' value='".esc_attr($answer[0])."' /> <label for='question".$id."_".$mlw_answer_total."'>".htmlspecialchars_decode($answer[0], ENT_QUOTES)."&nbsp;</label>";
+        $question_display .= "</span>";
+		
       }
     }
   }
@@ -1047,7 +1135,7 @@ function qmn_question_type_fill_blank()
 * @return $question_display Returns the content of the question
 * @since 4.4.0
 */
-function qmn_fill_blank_display($id, $question, $answers)
+function qmn_fill_blank_display($id, $question, $answers, $show_answer = false, $user_answer = array())
 {
   $question_display = '';
   global $mlwQuizMasterNext;
@@ -1134,7 +1222,7 @@ function qmn_question_type_polar() {
  * @return $question_display Returns the content of the question
  * @since 6.4.1
  */
-function qmn_polar_display($id, $question, $answers) {    
+function qmn_polar_display($id, $question, $answers, $show_answer = false, $user_answer = array()) {    
     $question_display = '';
     global $mlwQuizMasterNext;
     $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');

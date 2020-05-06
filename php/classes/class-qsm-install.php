@@ -756,7 +756,8 @@ class QSM_Install {
         '%USER_ANSWER%',
         '%CORRECT_ANSWER%',
         '%USER_COMMENTS%',
-        '%CORRECT_ANSWER_INFO%'
+        '%CORRECT_ANSWER_INFO%',
+        '%USER_QUESTION_ANSWER_MARK%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
