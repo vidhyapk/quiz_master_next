@@ -14,7 +14,7 @@ class InstallPluginCest
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
         $I->amGoingTo('Check if plugin is activated');
-        if ($I->seePluginActivated('quiz-master-next')) {
+        if ($I->activatePlugin('quiz-master-next')) {
             $I->activatePlugin('quiz-master-next');
             $I->see(' activated.'); //bulk activation also taken care of. 
         }
