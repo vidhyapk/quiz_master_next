@@ -363,7 +363,7 @@ class QMNQuizManager {
 				$cat_query = " AND category IN ( $cat_str ) ";
 			}
         }
-
+		
         // Check if we should load all questions or only a selcted amount.
         if ($is_quiz_page && ( 0 != $quiz_options->question_from_total || 0 !== $question_amount )) {
             if (0 !== $question_amount) {
@@ -383,6 +383,8 @@ class QMNQuizManager {
                     $question_ids[] = intval($question);
                 }
             }
+			$question_ids = apply_filters('qsm_load_questions_ids', $question_ids, $quiz_id, $quiz_options);
+			
             $question_sql = implode(', ', $question_ids);
             $questions = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}mlw_questions WHERE question_id IN ($question_sql) " . $cat_query . $order_by_sql . $limit_sql);
 
@@ -403,6 +405,8 @@ class QMNQuizManager {
         } else {
             $questions = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->prefix . "mlw_questions WHERE quiz_id=%d AND deleted=0 " . $cat_query . $order_by_sql . $limit_sql, $quiz_id));
         }
+		
+		$questions = apply_filters('qsm_load_questions_filter', $questions, $quiz_id, $quiz_options);
 
         // Returns an array of all the loaded questions.
         return $questions;
@@ -527,7 +531,7 @@ class QMNQuizManager {
             /* Restore original Post Data */
             wp_reset_postdata();
         }
-        $quiz_display = apply_filters('qsm_display_before_form', $quiz_display);
+        $quiz_display = apply_filters('qsm_display_before_form', $quiz_display, $options, $quiz_data);
         $quiz_display .= "<form name='quizForm{$quiz_data['quiz_id']}' id='quizForm{$quiz_data['quiz_id']}' action='' method='POST' class='qsm-quiz-form qmn_quiz_form mlw_quiz_form' novalidate  enctype='multipart/form-data'>";
         $quiz_display .= "<div name='mlw_error_message' id='mlw_error_message' class='qsm-error-message qmn_error_message_section'></div>";
         $quiz_display .= "<span id='mlw_top_of_quiz'></span>";

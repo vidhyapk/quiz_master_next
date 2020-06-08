@@ -272,6 +272,8 @@ class QSM_Questions {
 			'category'             => sanitize_text_field( $data['category'] ),
 			'deleted'              => 0,
 		);
+		
+		$values = apply_filters('qsm_filter_saving_question_data', $values);
 
 		$types = array(
 			'%d',
@@ -293,6 +295,7 @@ class QSM_Questions {
 				$values,
 				$types
 			);
+			$data['ID'] = $values['question_id'] = $wpdb->insert_id;
 		} else {
 			$results = $wpdb->update(
 				$wpdb->prefix . 'mlw_questions',
@@ -308,11 +311,12 @@ class QSM_Questions {
 			$mlwQuizMasterNext->log_manager->add( 'Error when creating/saving question', $msg, 0, 'error' );
 			throw new Exception( $msg );
 		}
+		/**
+		 * Hook after saving question data
+		 */
+		$question_id = $data['ID'];
+		do_action('qsm_save_question_data', $question_id, $data, $values, $is_creating);
 
-		if ( $is_creating ) {
-			return $wpdb->insert_id;
-		} else {
-			return $data['ID'];
-		}
+		return $question_id;
 	}
 }

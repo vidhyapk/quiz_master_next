@@ -217,6 +217,7 @@ function qsm_options_questions_tab_content() {
                                                 <input type="checkbox" name="file_upload_type[]" value="excel" /> <?php _e( 'Excel', 'quiz-master-next' ); ?><br/>
                                                 <input type="checkbox" name="file_upload_type[]" value="video/mp4" /> <?php _e( 'Video', 'quiz-master-next' ); ?>
                                             </div>
+											<?php do_action('qsm_question_advanced_option_fields', $quiz_id); ?>
                                         </div>					
 				</main>
 				<footer class="qsm-popup__footer">
@@ -252,6 +253,7 @@ function qsm_options_questions_tab_content() {
 				<div><a href="#" class="duplicate-question-button"><span class="dashicons dashicons-controls-repeat"></span></a></div>
 				<div class="question-content-text">{{{data.question}}}</div>
 				<div><# if ( 0 !== data.category.length ) { #> Category: {{data.category}} <# } #></div>
+				<?php do_action('qsm_question_row_template', $quiz_id); ?>
 				<div><a href="#" class="delete-question-button"><span class="dashicons dashicons-trash"></span></a><div>
 			</div>
 		</div>
