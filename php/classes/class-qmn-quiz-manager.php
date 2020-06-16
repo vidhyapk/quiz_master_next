@@ -384,7 +384,6 @@ class QMNQuizManager {
                 }
             }
 			$question_ids = apply_filters('qsm_load_questions_ids', $question_ids, $quiz_id, $quiz_options);
-			
             $question_sql = implode(', ', $question_ids);
             $questions = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}mlw_questions WHERE question_id IN ($question_sql) " . $cat_query . $order_by_sql . $limit_sql);
 
@@ -403,7 +402,9 @@ class QMNQuizManager {
                 $questions = $ordered_questions;
             }
         } else {
-            $questions = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->prefix . "mlw_questions WHERE quiz_id=%d AND deleted=0 " . $cat_query . $order_by_sql . $limit_sql, $quiz_id));
+			$question_ids = apply_filters('qsm_load_questions_ids', $question_ids, $quiz_id, $quiz_options);
+			$question_sql = implode(', ', $question_ids);
+            $questions = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->prefix . "mlw_questions WHERE quiz_id=%d AND deleted=0 AND question_id IN ({$question_sql}) {$cat_query} {$order_by_sql} {$limit_sql}", $quiz_id));
         }
 		
 		$questions = apply_filters('qsm_load_questions_filter', $questions, $quiz_id, $quiz_options);
@@ -606,9 +607,10 @@ class QMNQuizManager {
             </section>
             <?php
         }
-
+		
         // If there is only one page.
-        if (1 == count($pages)) {            
+		$pages = apply_filters('qsm_display_pages', $pages, $options->quiz_id, $options);
+        if (1 == count($pages)) {
             ?>
             <section class="qsm-page <?php echo $animation_effect; ?>">
                 <?php
