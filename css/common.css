@@ -155,38 +155,13 @@ footer.qsm-popup__footer button.qsm-popup-secondary-button:hover{
     font-weight: bold;
     margin: 0 0 10px;
 }
-.qsm_taxonomy_filter ul{
-    display: inline-block;
-    width: 100%;
-    max-height: 150px;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-    overflow-y: auto;
-    list-style: none;
-    list-style-type: none;
-    margin: 0;
-    padding: 5px;
-    border: 1px solid #DDD;
-    border-radius: 5px;
-    line-height: normal;
-}
-.qsm_taxonomy_filter ul li{display: inline-block;width: 100%;line-height: normal;}
-.qsm_taxonomy_filter ul li label{
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: normal;
-}
-.qsm_taxonomy_filter ul li input{
-    margin: 0 5px;
-}
-.qsm_taxonomy_filter ul li span{
-    margin: 0 5px;
-    word-break: break-word;
-    line-height: normal;
+.qsm_taxonomy_filter select, .qsm_taxonomy_filter .select2-container--default .select2-selection--multiple{
+    width: 300px;
     font-size: 14px;
 }
+.select2-results__options{font-size: 14px;}
+
+
 @media screen and (max-width: 767px){
     .question-type-polar-s .left-polar-title,
     .question-type-polar-s .slider-main-wrapper,
