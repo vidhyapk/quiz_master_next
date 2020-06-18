@@ -968,8 +968,8 @@ jQuery(function() {
 		}
 	});
 	
-	jQuery( '.qmn_quiz_form' ).on( "submit", function( event ) {
-	  event.preventDefault();
+	jQuery(document).on( "submit", '.qmn_quiz_form', function( event ) {
+		event.preventDefault();
 		qmnFormSubmit( this.id );
 	});
         

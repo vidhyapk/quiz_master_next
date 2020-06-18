@@ -1056,6 +1056,7 @@ class QMNQuizManager {
         $qmn_array_for_variables['timer_ms'] = $mlw_qmn_timer_ms;
         $qmn_array_for_variables['time_taken'] = current_time('h:i:s A m/d/Y');
         $qmn_array_for_variables['contact'] = $contact_responses;
+        $qmn_array_for_variables['qsm_taxo'] = isset($_POST["qsm_taxo"]) ? sanitize_text_field($_POST["qsm_taxo"]) : '';
 
         if (!isset($_POST["mlw_code_captcha"]) || ( isset($_POST["mlw_code_captcha"]) && $_POST["mlw_user_captcha"] == $_POST["mlw_code_captcha"] )) {
 
@@ -1085,6 +1086,7 @@ class QMNQuizManager {
                     htmlspecialchars(stripslashes($qmn_array_for_variables['comments']), ENT_QUOTES),
                     'contact' => $contact_responses,
                     'timer_ms' => intval($qmn_array_for_variables['timer_ms']),
+                    'qsm_taxo' => $qmn_array_for_variables['qsm_taxo'],
                 );
                 $results_array = apply_filters('qsm_results_array', $results_array, $qmn_array_for_variables);
                 $serialized_results = serialize($results_array);
