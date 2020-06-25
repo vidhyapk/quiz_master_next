@@ -31,18 +31,35 @@ function qsm_options_questions_tab_content() {
 
 	global $wpdb;
 	global $mlwQuizMasterNext;
-        $question_categories = $wpdb->get_results( "SELECT DISTINCT category FROM {$wpdb->prefix}mlw_questions", 'ARRAY_A' );
-	$quiz_id = intval( $_GET['quiz_id'] );
-        $user_id = get_current_user_id();         
+	$question_categories = $wpdb->get_results("SELECT DISTINCT category FROM {$wpdb->prefix}mlw_questions", 'ARRAY_A');
+	$quiz_id = intval($_GET['quiz_id']);
+	$user_id = get_current_user_id();
+	$pages = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('pages', array());
+	$db_qpages = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('qpages', array());
+	$qpages = array();
+	if (!empty($pages)) {
+		$defaultQPage = array('id' => 1, 'quizID' => $quiz_id, 'pagekey' => '', 'page_intro' => '', 'hide_prevbtn' => 0, 'questions' => array());
+		foreach ($pages as $k => $val) {
+			$qpage = isset($db_qpages[$k]) ? $db_qpages[$k] : $defaultQPage;
+			$qpage['id'] = $k + 1;
+			$qpage['pagekey'] = (isset($qpage['pagekey']) && !empty($qpage['pagekey'])) ? $qpage['pagekey'] : uniqid();
+			$qpage['page_intro'] = wp_unslash(html_entity_decode($qpage['page_intro']));
+			$qpage['hide_prevbtn'] = (isset($qpage['hide_prevbtn']) && !empty($qpage['hide_prevbtn'])) ? $qpage['hide_prevbtn'] : 0;
+			$qpage['questions'] = $val;
+			$qpages[] = $qpage;
+		}
+	}
 	$json_data = array(
-		'quizID'     => $quiz_id,
-		'answerText' => __( 'Answer', 'quiz-master-next' ),
-		'nonce'      => wp_create_nonce( 'wp_rest' ),
-		'pages'      => $mlwQuizMasterNext->pluginHelper->get_quiz_setting( 'pages', array() ),
-                'qsm_user_ve' => get_user_meta($user_id, 'rich_editing', true),
-                'saveNonce' => wp_create_nonce('ajax-nonce-sandy-page'),
-                'categories' => $question_categories
+		'quizID' => $quiz_id,
+		'answerText' => __('Answer', 'quiz-master-next'),
+		'nonce' => wp_create_nonce('wp_rest'),
+		'pages' => $pages,
+		'qpages' => $qpages,
+		'qsm_user_ve' => get_user_meta($user_id, 'rich_editing', true),
+		'saveNonce' => wp_create_nonce('ajax-nonce-sandy-page'),
+		'categories' => $question_categories
 	);
+	$json_data = apply_filters('qsm_question_settings_js_data', $json_data);
 
 	// Scripts and styles.
 	wp_enqueue_script( 'micromodal_script', plugins_url( '../../js/micromodal.min.js', __FILE__ ) );
@@ -226,14 +243,51 @@ function qsm_options_questions_tab_content() {
 			</div>
 		</div>
 	</div>
+	
+	<!-- Popup for edit page -->
+	<div class="qsm-popup qsm-popup-slide qsm-popup-bank" id="modal-page-1" aria-hidden="true">
+		<div class="qsm-popup__overlay" tabindex="-1" data-micromodal-close>
+			<div class="qsm-popup__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+				<header class="qsm-popup__header">
+					<h2 class="qsm-popup__title" id="modal-1-title">Edit Page <span style="display: none;">[ ID: <span id="edit-page-id"></span>  ]</span></h2>
+					<a class="qsm-popup__close" aria-label="Close modal" data-micromodal-close></a>
+				</header>
+				<main class="qsm-popup__content" id="modal-page-1-content">
+					<input type="hidden" name="edit_page_id" id="edit_page_id" value="">
+					<div id="page-options">
+						<div class="qsm-row">
+							<label><?php _e('Page Name', 'quiz-master-next'); ?></label>
+							<input type="text" id="pagekey" name="pagekey" value="">
+						</div>
+						<div class="qsm-row">
+							<label><?php _e('Page Description', 'quiz-master-next'); ?></label>
+							<textarea id="page_intro" name="page_intro"></textarea>
+						</div>
+						<div class="qsm-row">
+							<label><?php _e('Hide Previous Button?', 'quiz-master-next'); ?></label>
+							<select name="hide_prevbtn" id="hide_prevbtn">
+								<option value="0" selected="selected"><?php _e( 'No', 'quiz-master-next' ); ?></option>
+								<option value="1"><?php _e( 'Yes', 'quiz-master-next' ); ?></option>
+							</select>
+						</div>
+					</div>
+				</main>
+				<footer class="qsm-popup__footer">
+					<button id="save-page-popup-button" class="qsm-popup__btn qsm-popup__btn-primary">Save Page</button>
+					<button class="qsm-popup__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+				</footer>
+			</div>
+		</div>
+	</div>
 
 	<!--Views-->
 
 	<!-- View for Page -->
 	<script type="text/template" id="tmpl-page">
-		<div class="page page-new">
+		<div class="page page-new" data-page-id="{{data.id }}">
 			<div class="page-header">
 				<div><span class="dashicons dashicons-move"></span></div>
+				<div><a href="#" class="edit-page-button"><span class="dashicons dashicons-edit"></span></a></div>
 				<div class="page-header-buttons">
 					<a href="#" class="new-question-button button">Create New Question</a>
 					<a href="#" class="add-question-bank-button button">Add Question From Question Bank</a>
@@ -292,6 +346,7 @@ function qsm_options_questions_tab_content() {
 		</div>
 	</script>
 	<?php
+	do_action('qsm_admin_after_questions_tab_content');
 }
 
 
@@ -305,22 +360,28 @@ add_action( 'wp_ajax_qsm_save_pages', 'qsm_ajax_save_pages' );
  * @since 5.2.0
  */
 function qsm_ajax_save_pages() {
-    
-        $nonce = $_POST['nonce'];
-        if ( ! wp_verify_nonce( $nonce, 'ajax-nonce-sandy-page' ) )
-            die ( 'Busted!');
-        
+	$nonce = $_POST['nonce'];
+	if (!wp_verify_nonce($nonce, 'ajax-nonce-sandy-page')) {
+		die('Busted!');
+	}
 	global $mlwQuizMasterNext;
 	$json = array(
 		'status' => 'error',
 	);
-	$quiz_id = intval( $_POST['quiz_id'] );
-	$mlwQuizMasterNext->pluginHelper->prepare_quiz( $quiz_id );
-	$response = $mlwQuizMasterNext->pluginHelper->update_quiz_setting( 'pages', $_POST['pages'] );
-	if ( $response ) {
+	$quiz_id = intval($_POST['quiz_id']);
+	$pages = isset($_POST['pages']) ? $_POST['pages'] : array('1');
+	$qpages = isset($_POST['qpages']) ? $_POST['qpages'] : array();
+	foreach ($qpages as $key => $qp) {
+		$qpages[$key]['page_intro'] = htmlentities(wpautop($qp['page_intro']));
+	}
+	
+	$mlwQuizMasterNext->pluginHelper->prepare_quiz($quiz_id);
+	$response_qpages = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('qpages', $qpages);
+	$response = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('pages', $pages);
+	if ($response) {
 		$json['status'] = 'success';
 	}
-	echo wp_json_encode( $json );
+	echo wp_json_encode($json);
 	wp_die();
 }
 

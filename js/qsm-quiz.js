@@ -8,6 +8,7 @@
  **************************/
 
 var QSM;
+var QSMPageTimer;
 (function ($) {
 	QSM = {
 		/**
@@ -35,7 +36,7 @@ var QSM;
 		initTimer: function( quizID ) {
 
 			// Gets our form
-			var $quizForm = QSM.getQuizForm( quizID );
+			var $quizForm = QSM.getQuizForm(quizID);
 
 			// Creates timer status key.
 			qmn_quiz_data[ quizID ].timerStatus = false;
@@ -113,10 +114,12 @@ var QSM;
 				seconds = parseFloat( qmn_quiz_data[ quizID ].timer_limit ) * 60;
 			}
 			qmn_quiz_data[ quizID ].timerRemaning = seconds;
-                        
-                        //hidden timer
-                        jQuery(".hiddentimer").html(seconds);
-                        
+
+			var timeTaken = parseInt(parseFloat(qmn_quiz_data[ quizID ].timer_limit) * 60) - parseInt(seconds);
+			jQuery("#quizForm"+quizID+" #timer").val(timeTaken);
+			//hidden timer
+			jQuery(".hiddentimer").html(seconds);
+
 			// Makes the timer appear.
 			$timer.show();
 			$timer.text( QSM.secondsToTimer( seconds ) );
@@ -318,9 +321,10 @@ var QSM;
 		goToPage: function( quizID, pageNumber ) {
 			var $quizForm = QSM.getQuizForm( quizID );
 			var $pages = $quizForm.children( '.qsm-page' );
+			var $currentPage = $quizForm.children( '.qsm-page:nth-of-type(' + pageNumber + ')' );
 			$pages.hide();
-			$quizForm.children( '.qsm-page:nth-of-type(' + pageNumber + ')' ).show();
-                        $quizForm.find('.current_page_hidden').val( pageNumber - 1 );
+			$currentPage.show();
+			$quizForm.find('.current_page_hidden').val( pageNumber - 1 );
 			$quizForm.find( '.qsm-previous' ).hide();
 			$quizForm.find( '.qsm-next' ).hide();
 			$quizForm.find( '.qsm-submit-btn' ).hide();
@@ -331,6 +335,9 @@ var QSM;
 			}
 			if ( 1 < pageNumber ) {
 				$quizForm.find( '.qsm-previous' ).show();
+			}
+			if (1 == $currentPage.data('prevbtn')) {
+				$quizForm.find( '.qsm-previous' ).hide();
 			}
 			if ( '1' == qmn_quiz_data[ quizID ].progress_bar ) {
                                 var current_page = jQuery('#quizForm' + quizID).find('.current_page_hidden').val();                                
@@ -1014,8 +1021,8 @@ jQuery(function() {
                     QSM.initPagination( quiz_id );
                 },
                 error: function (errorThrown) {
-					console.log( 'error' );
-                    alert( );
+                  console.log( 'error' );
+                    alert(errorThrown);
                 }
             });
         });
@@ -1132,12 +1139,12 @@ jQuery(function() {
         });
         
         //Submit the form on popup click
-        jQuery(document).on( 'click', '.submit-the-form', function(e) {
+        jQuery('.submit-the-form').click(function(e){
             e.preventDefault();
-            // Triggger the click event on the quiz form's submit button.
-			jQuery( '.qsm-submit-btn' ).trigger( 'click' );
+            var quiz_id = jQuery(this).data('quiz_id');
+            jQuery('#quizForm' + quiz_id ).submit();
             jQuery('#modal-3').removeClass('is-open');
-        } );
+        });
 });
 
 var qsmTimerInterval = setInterval( qmnTimeTakenTimer, 1000 );

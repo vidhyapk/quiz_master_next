@@ -24,15 +24,17 @@
     align-items: center;
     justify-content: space-between;
     background-color: #fff;
-    padding: 10px 35px;
+    padding: 10px 25px;
 	border-bottom: 5px solid #1DD969;
 }
+
+.page-header div{margin: 0 10px;}
 
 .page-header a {
 	text-decoration: none;
 }
-
 .page-header-buttons {
+	flex-grow: 1;
 	text-align: center;
 }
 
@@ -113,7 +115,7 @@
 .qsm-popup {
 	font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
 }
-  
+
 .qsm-popup__overlay {
 	position: fixed;
 	top: 0;
@@ -221,7 +223,7 @@
 }
 
 @keyframes mmslideIn {
-from { transform: translateY(15%); }
+	from { transform: translateY(15%); }
 	to { transform: translateY(0); }
 }
 

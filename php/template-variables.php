@@ -8,6 +8,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 *
 * @since 4.4.0
 */
+/**
+ * Replace String Between two points
+ */
+function qsm_replace_between_string($str, $needle_start, $needle_end, $replacement) {
+	$pos = strpos($str, $needle_start);
+	$start = $pos === false ? 0 : $pos + strlen($needle_start);
+	$end = ($start === false) ? strlen($str) : strpos($str, $needle_end, $start);
+
+	return substr_replace($str, $replacement, $start, ($end - $start));
+}
 /*
 
 Results Array For Reference:
@@ -693,4 +703,116 @@ function qsm_end_results_rank($result_display, $qmn_quiz_options, $qmn_array_for
 	$result_display = str_replace("%RANK%", $mlw_rank, $result_display);
 
 	return $result_display;
+}
+
+add_filter('mlw_qmn_template_variable_results_page', 'mlw_qmn_variable_pages_info', 99, 2);
+add_filter('mlw_qmn_template_variable_results_page', 'mlw_qmn_variable_if_results', 99, 2);
+
+function mlw_qmn_variable_pages_info($content, $mlw_quiz_array) {
+	global $wpdb, $mlwQuizMasterNext;
+	$quiz_id = is_object($mlw_quiz_array) ? $mlw_quiz_array->quiz_id : $mlw_quiz_array['quiz_id'];
+	$mlwQuizMasterNext->pluginHelper->prepare_quiz($quiz_id);
+	$db_qpages = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('qpages', array());
+	if (!empty($db_qpages)) {
+		$pages_info = array();
+		foreach ($db_qpages as $page) {
+			$pagekey = $page['pagekey'];
+			$page_total_points = $page['page_total_points'];
+			$pages_info[$pagekey] = array(
+				'questions' => $page['questions'],
+				'total_questions' => count($page['questions']),
+				'total_points' => $page_total_points,
+				'user_points' => 0,
+			);
+			foreach ($page['questions'] as $question_id) {
+				$question_answers_array = isset($mlw_quiz_array['question_answers_array']) ? $mlw_quiz_array['question_answers_array'] : array();
+				$key = array_search($question_id, array_column($question_answers_array, 'id'));
+				if (isset($question_answers_array[$key])) {
+					$answer = $question_answers_array[$key];
+					$pages_info[$pagekey]['user_points'] += $answer['points'];
+				}
+			}
+		}
+		if (false !== strpos($content, '%PAGERESULT_')) {
+			while (strpos($content, '%PAGERESULT_')) {
+				$r_count = mlw_qmn_get_string_between($content, '%PAGERESULT_', '%');
+				$pageKeys = explode(',', strip_tags($r_count));
+				if (empty($pageKeys)) {
+					$content = str_replace("%PAGERESULT_{$r_count}%", '', $content);
+				} else {
+					$total_points = 0;
+					$user_points = 0;
+					foreach ($pageKeys as $key) {
+						$key = trim($key);
+						$user_points += (isset($pages_info[$key]['user_points']) ? $pages_info[$key]['user_points'] : 0);
+						$total_points += (isset($pages_info[$key]['total_points']) ? $pages_info[$key]['total_points'] : 0);
+					}
+					$pages_result = "{$user_points} out of {$total_points}";
+					$content = str_replace("%PAGERESULT_{$r_count}%", $pages_result, $content);
+				}
+			}
+		}
+		if (false !== strpos($content, '%PAGEPERCENTAGE_')) {
+			while (strpos($content, '%PAGEPERCENTAGE_')) {
+				$r_count = mlw_qmn_get_string_between($content, '%PAGEPERCENTAGE_', '%');
+				$pageKeys = explode(',', strip_tags($r_count));
+				if (empty($pageKeys)) {
+					$content = str_replace("%PAGEPERCENTAGE_{$r_count}%", '', $content);
+				} else {
+					$total_points = 0;
+					$user_points = 0;
+					foreach ($pageKeys as $key) {
+						$key = trim($key);
+						$user_points += (isset($pages_info[$key]['user_points']) ? $pages_info[$key]['user_points'] : 0);
+						$total_points += (isset($pages_info[$key]['total_points']) ? $pages_info[$key]['total_points'] : 0);
+					}
+					$user_percentage = round(( ( $user_points / $total_points ) * 100), 2);
+					$content = str_replace("%PAGEPERCENTAGE_{$r_count}%", $user_percentage, $content);
+				}
+			}
+		}
+	}
+	return $content;
+}
+
+function mlw_qmn_variable_if_results($content, $mlw_quiz_array) {
+	global $wpdb, $mlwQuizMasterNext;
+	$quiz_id = is_object($mlw_quiz_array) ? $mlw_quiz_array->quiz_id : $mlw_quiz_array['quiz_id'];
+	$mlwQuizMasterNext->pluginHelper->prepare_quiz($quiz_id);
+	$db_qpages = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('qpages', array());
+	$user_points = intval($mlw_quiz_array['total_points']);
+	$total_points = 0;
+	if (!empty($db_qpages)) {
+		$pages_info = array();
+		foreach ($db_qpages as $page) {
+			$total_points += $page['page_total_points'];
+		}
+	}
+	$user_percentage = round(( ( $user_points / $total_points ) * 100), 2);
+
+	if (false !== strpos($content, '%IF_RESULT_ABOVE_') && false !== strpos($content, '%END_RESULT_ABOVE_')) {
+		while (strpos($content, '%IF_RESULT_ABOVE_')) {
+			$r_count = mlw_qmn_get_string_between($content, '%IF_RESULT_ABOVE_', '%');
+			if (intval($r_count) > 0 && intval($user_percentage) >= intval($r_count)) {
+				$content = str_replace("%IF_RESULT_ABOVE_{$r_count}%", '', $content);
+				$content = str_replace("%END_RESULT_ABOVE_{$r_count}%", '', $content);
+			} else {
+				$content = qsm_replace_between_string($content, "%IF_RESULT_ABOVE_{$r_count}%", "%END_RESULT_ABOVE_{$r_count}%", '');
+				$content = str_replace("%IF_RESULT_ABOVE_{$r_count}%%END_RESULT_ABOVE_{$r_count}%", '', $content);
+			}
+		}
+	}
+	if (false !== strpos($content, '%IF_RESULT_BELOW_') && false !== strpos($content, '%END_RESULT_BELOW_')) {
+		while (strpos($content, '%IF_RESULT_BELOW_')) {
+			$r_count = mlw_qmn_get_string_between($content, '%IF_RESULT_BELOW_', '%');
+			if (0 == intval($r_count) || intval($user_percentage) < intval($r_count)) {
+				$content = str_replace("%IF_RESULT_BELOW_{$r_count}%", '', $content);
+				$content = str_replace("%END_RESULT_BELOW_{$r_count}%", '', $content);
+			} else {
+				$content = qsm_replace_between_string($content, "%IF_RESULT_BELOW_{$r_count}%", "%END_RESULT_BELOW_{$r_count}%", '');
+				$content = str_replace("%IF_RESULT_BELOW_{$r_count}%%END_RESULT_BELOW_{$r_count}%", '', $content);
+			}
+		}
+	}
+	return $content;
 }
