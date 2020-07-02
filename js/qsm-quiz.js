@@ -908,6 +908,7 @@ function qmnInitPagination( quiz_id ) {
 
 	jQuery( '#quizForm' + quiz_id + ' .quiz_section' ).hide();
 	jQuery( '#quizForm' + quiz_id + ' .quiz_section' ).append( "<br />" );
+	jQuery( '#quizForm' + quiz_id + ' .quiz_section.quiz_end').find('br').remove();
 	jQuery( '#quizForm' + quiz_id ).closest( '.qmn_quiz_container' ).append( '<div class="qmn_pagination border margin-bottom"></div>' );
 	jQuery( '#quizForm' + quiz_id ).closest( '.qmn_quiz_container' ).find( '.qmn_pagination' ).append( '<input type="hidden" value="0" name="slide_number" class="slide_number_hidden" />')
 		.append( '<input type="hidden" value="0" name="current_page" class="current_page_hidden" />')
