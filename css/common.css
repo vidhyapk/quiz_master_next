@@ -13,14 +13,25 @@
 .MJXc-display{
     display: inline-block !important;
 }
-.mlw_qmn_question{
+body .quiz_section .mlw_qmn_question{
+    display: inline-block;
+}
+
+body .quiz_section .qsm_contact_div .mlw_qmn_question{
     display: block;
 }
+
+.mlw_qmn_question.polar-question-title {
+	margin-bottom: 10px;
+}
+
 .polar-question-title{
     margin-bottom: 50px;
-    font-size: 20px;
+    font-size: 16px;
     line-height: 20px;
 }
+
+
 .question-type-polar-s{
     display: inline-block !important;
     position: relative;
@@ -116,6 +127,17 @@ footer.qsm-popup__footer button.qsm-popup-secondary-button:hover{
 }
 .qsm-quiz-container .qsm-contact-type-checkbox input{
     display: inline-block;
+}   
+.quiz_section .mlw_qmn_new_question{
+    font-weight: bold;
+    display: inline-block;
+    width: auto;
+    margin-bottom: 10px;
+}
+.quiz_section .mlw_qmn_question.qsm_remove_bold{
+    font-weight: normal;
+    display: block;
+    margin-bottom: 10px;
 }
 .quiz_section iframe{    
     width: 100% !important;
@@ -131,36 +153,19 @@ footer.qsm-popup__footer button.qsm-popup-secondary-button:hover{
     font-weight: bold;
     color: rgb(52, 152, 219);
 }
-
-.quiz_taxonomy_filter_wrapper{}
-.quiz_taxonomy_filter_wrapper .quiz_taxonomy_filter_heading{
-    font-size: 22px;
-    line-height: normal;
-    margin: 15px 0;
-}
-.quiz_taxonomy_filter_wrapper .start-filter-quiz{
+.quiz_section .mlw-file-upload-error-msg{
+    color: red;
     display: block;
-    width: 100px;
-    margin: 20px auto;
-    text-align: center;
 }
-.qsm_taxonomy_filter{
-    display: inline-block;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 5px;
-}
-.qsm_taxonomy_filter .qsm_taxonomy_heading{
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 10px;
-}
-.qsm_taxonomy_filter select, .qsm_taxonomy_filter .select2-container--default .select2-selection--multiple{
-    width: 300px;
-    font-size: 14px;
-}
-.select2-results__options{font-size: 14px;}
 
+.quiz_section .remove-uploaded-file{
+    color: red;
+    border: 1px solid red;
+    width: 31px;
+    padding: 5px 5px 0px 5px;
+    display: inline-block;
+    cursor: pointer;
+}
 
 @media screen and (max-width: 767px){
     .question-type-polar-s .left-polar-title,

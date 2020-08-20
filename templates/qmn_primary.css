@@ -459,16 +459,28 @@ border: 1px solid #e3e3e3;
 .qsm-results-page .qmn_question_answer{
     margin-bottom: 30px;
 }
-.quiz_section .mlw-file-upload-error-msg{
-    color: red;
-    display: block;
-}
 
-.quiz_section .remove-uploaded-file{
+.page-timer-wrapper{
+    display: flex;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.page-timer-wrapper .qsm-pagetimer{
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+    color: #333;
+    padding: 5px 10px;
+    box-shadow: 0 0 10px 1px #eee;
+    border-radius: 5px;
+}
+.page-timer-wrapper .qsm-pagetimer-warning{
+    box-sizing: border-box;
     color: red;
-    border: 1px solid red;
-    width: 31px;
-    padding: 5px 5px 0px 5px;
-    display: inline-block;
-    cursor: pointer;
+    font-size: 18px;
+    line-height: 24px;
 }

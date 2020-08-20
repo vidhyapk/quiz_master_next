@@ -11,7 +11,7 @@ add_action("plugins_loaded", 'qmn_question_type_multiple_choice');
 function qmn_question_type_multiple_choice()
 {
 	global $mlwQuizMasterNext;
-	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Multiple Choice", 'quiz-master-next'), 'qmn_multiple_choice_display', true, 'qmn_multiple_choice_review', null, null, 0);
+	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Vertical Multiple Choice", 'quiz-master-next'), 'qmn_multiple_choice_display', true, 'qmn_multiple_choice_review', null, null, 0);
 }
 
 add_action("plugins_loaded", 'qmn_question_type_file_upload');
@@ -42,8 +42,10 @@ function qmn_file_upload_display($id, $question, $answers)
     $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
     if ($required == 0) {$mlw_requireClass = "mlwRequiredFileUpload";} else {$mlw_requireClass = "";}    
     //$question_title = apply_filters('the_content', $question);
-    $question_display .= qsm_question_title_func($question);
-    $question_display .= "<input type='file' class='mlw_answer_file_upload $mlw_requireClass'/>";
+    $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+    $question_display .= qsm_question_title_func($question,'',$new_question_title);
+    $question_display .= "<div style=''></div><input type='file' class='mlw_answer_file_upload $mlw_requireClass'/>";
+    $question_display .= "<div style='display: none;' class='loading-uploaded-file'><img src='".get_site_url()."/wp-includes/images/spinner-2x.gif'></div>";
     $question_display .= "<div style='display: none;' class='remove-uploaded-file'><span class='dashicons dashicons-trash'></span></div>";
     $question_display .= "<input class='mlw_file_upload_hidden_value' type='hidden' name='question".$id."' value='' />";
     $question_display .= "<span style='display: none;' class='mlw-file-upload-error-msg'></span>";
@@ -104,9 +106,10 @@ function qmn_multiple_choice_display($id, $question, $answers)
   global $mlwQuizMasterNext;
   $answerEditor = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'answerEditor');
   $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');  
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
   if ($required == 0) {$mlw_requireClass = "mlwRequiredRadio";} else {$mlw_requireClass = "";}
-  //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question,'multiple_choice');
+  //$question_title = apply_filters('the_content', $question);  
+  $question_display .= qsm_question_title_func($question,'multiple_choice',$new_question_title);
   $question_display .= "<div class='qmn_radio_answers $mlw_requireClass'>";  
   if (is_array($answers))
   {
@@ -201,7 +204,8 @@ function qmn_date_display($id, $question, $answers)
     $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
     if ($required == 0) {$mlw_requireClass = "mlwRequiredDate";} else {$mlw_requireClass = "";}
     //$question_title = apply_filters('the_content', $question);
-    $question_display .= qsm_question_title_func($question);
+    $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+    $question_display .= qsm_question_title_func($question,'',$new_question_title);
     $question_display .= "<input type='date' class='mlw_answer_date $mlw_requireClass' name='question".$id."' id='question".$id."' value=''/>";
     //$question_display .= "<script>jQuery(document).ready(function () { jQuery('#question".$id."').datepicker();  });</script>";
     return apply_filters('qmn_date_display_front',$question_display,$id, $question, $answers);
@@ -272,7 +276,8 @@ function qmn_horizontal_multiple_choice_display($id, $question, $answers)
   $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
   if ($required == 0) {$mlw_requireClass = "mlwRequiredRadio";} else {$mlw_requireClass = "";}
   //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question,'horizontal_multiple_choice');
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question,'horizontal_multiple_choice',$new_question_title);
   $question_display .= "<div class='qmn_radio_answers $mlw_requireClass'>";
   if (is_array($answers))
   {
@@ -367,7 +372,8 @@ function qmn_drop_down_display($id, $question, $answers)
             $require_class = "";
     }    
     //$question_title = apply_filters('the_content', $question);    
-    $question_display .= qsm_question_title_func($question);
+    $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+    $question_display .= qsm_question_title_func($question, '', $new_question_title);
     $question_display .= "<select class='qsm_select $require_class' name='question".$id."'>";
     $question_display .= "<option value='No Answer Provided'>" . __('Please select your answer','quiz-master-next') . "</option>";
     if (is_array($answers))
@@ -438,7 +444,7 @@ add_action("plugins_loaded", 'qmn_question_type_small_open');
 function qmn_question_type_small_open()
 {
 	global $mlwQuizMasterNext;
-	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Small Open Answer", 'quiz-master-next'), 'qmn_small_open_display', true, 'qmn_small_open_review', null, null, 3);
+	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Short Answer", 'quiz-master-next'), 'qmn_small_open_display', true, 'qmn_small_open_review', null, null, 3);
 }
 
 /**
@@ -461,7 +467,8 @@ function qmn_small_open_display($id, $question, $answers)
   $limit_text_att = $limit_text ? "maxlength='". $limit_text ."' " : '';
   if ($required == 0) {$mlw_requireClass = "mlwRequiredText";} else {$mlw_requireClass = "";}    
   //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question);
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question, '', $new_question_title);
   $question_display .= "<input ". $autofill_att . $limit_text_att . " type='text' class='mlw_answer_open_text $mlw_requireClass' name='question".$id."' />";
   return apply_filters('qmn_small_open_display_front',$question_display,$id, $question, $answers);  
 }
@@ -537,7 +544,8 @@ function qmn_multiple_response_display($id, $question, $answers)
       $limit_mr_text = 'onchange="qsmCheckMR(this,'. $limit_multiple_response .')"';
   if ($required == 0) {$mlw_requireClass = "mlwRequiredCheck";} else {$mlw_requireClass = "";}
   //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question);
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question, '', $new_question_title);
   $question_display .= "<div class='qmn_check_answers $mlw_requireClass'>";
   if (is_array($answers))
   {
@@ -619,7 +627,7 @@ add_action("plugins_loaded", 'qmn_question_type_large_open');
 function qmn_question_type_large_open()
 {
 	global $mlwQuizMasterNext;
-	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Large Open Answer", 'quiz-master-next'), 'qmn_large_open_display', true, 'qmn_large_open_review', null, null, 5);
+	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Paragraph", 'quiz-master-next'), 'qmn_large_open_display', true, 'qmn_large_open_review', null, null, 5);
 }
 
 /**
@@ -638,7 +646,8 @@ function qmn_large_open_display($id, $question, $answers)
   $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
   if ($required == 0) {$mlw_requireClass = "mlwRequiredText";} else {$mlw_requireClass = "";}
   //$question_title = apply_filters('the_content', $question); 
-  $question_display .= qsm_question_title_func($question);
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question, '', $new_question_title);
   $question_display .= "<textarea class='mlw_answer_open_text $mlw_requireClass' cols='70' rows='5' name='question".$id."' /></textarea>";
   return apply_filters('qmn_large_open_display_front',$question_display,$id, $question, $answers);
 }
@@ -754,7 +763,8 @@ function qmn_number_display($id, $question, $answers)
   $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
   if ($required == 0) {$mlw_requireClass = "mlwRequiredNumber";} else {$mlw_requireClass = "";}
   //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question);
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question, '', $new_question_title);
   $question_display .= "<input type='number' class='mlw_answer_number $mlw_requireClass' name='question".$id."' />";
   return apply_filters('qmn_number_display_front',$question_display,$id, $question, $answers);  
 }
@@ -816,7 +826,7 @@ function qmn_question_type_accept()
 		'extra_inputs' => array(),
 		'function' => ''
 	);
-	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Accept", 'quiz-master-next'), 'qmn_accept_display', false, null, $edit_args, null, 8);
+	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Opt-in", 'quiz-master-next'), 'qmn_accept_display', false, null, $edit_args, null, 8);
 }
 
 /**
@@ -938,7 +948,8 @@ function qmn_horizontal_multiple_response_display($id, $question, $answers)
   $required = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'required');
   if ($required == 0) {$mlw_requireClass = "mlwRequiredCheck";} else {$mlw_requireClass = "";}
   //$question_title = apply_filters('the_content', $question);
-  $question_display .= qsm_question_title_func($question);
+  $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+  $question_display .= qsm_question_title_func($question, '', $new_question_title);
   $question_display .= "<div class='qmn_check_answers $mlw_requireClass'>";
   if (is_array($answers))
   {
@@ -1034,7 +1045,10 @@ function qmn_question_type_fill_blank()
 		'extra_inputs' => array(),
 		'function' => ''
 	);
-	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Fill In The Blank", 'quiz-master-next'), 'qmn_fill_blank_display', true, 'qmn_fill_blank_review', $edit_args );
+
+	$mlwQuizMasterNext->pluginHelper->register_question_type(__("Fill In The Blank", 'quiz-master-next'), 'qmn_fill_blank_display', true, 'qmn_fill_blank_review', $edit_args, null, 14 );
+	
+
 }
 
 
@@ -1063,7 +1077,8 @@ function qmn_fill_blank_display($id, $question, $answers)
 		$question = str_replace( "%BLANK%", $input_text, do_shortcode(htmlspecialchars_decode($question, ENT_QUOTES)));
 	}
         //$question_title = apply_filters('the_content', $question);
-    $question_display .= qsm_question_title_func($question);
+    $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
+    $question_display .= qsm_question_title_func($question, '', $new_question_title);
     return apply_filters('qmn_fill_blank_display_front',$question_display,$id, $question, $answers);  
 }
 
@@ -1209,7 +1224,7 @@ function qmn_polar_display($id, $question, $answers) {
     } else {
         $mlw_requireClass = "";
     }
-    $question_title = "<div class='polar-question-title'>". do_shortcode(htmlspecialchars_decode($question, ENT_QUOTES)) ."</div>";
+    $question_title = "<div class='mlw_qmn_question polar-question-title'>". do_shortcode(htmlspecialchars_decode($question, ENT_QUOTES)) ."</div>";
     $input_text .= "<div class='left-polar-title'>" . $answers[0][0] ."</div>";
     $input_text .= "<div class='slider-main-wrapper'><input type='hidden' class='qmn_polar $mlw_requireClass' id='question" . $id . "' name='question" . $id . "' />";
     $input_text .= '<div id="slider-'. $id .'"></div></div>';
@@ -1261,13 +1276,14 @@ function qmn_polar_review($id, $question, $answers) {
     return $return_array;
 }
 
-function qsm_question_title_func($question,$question_type = ''){
+function qsm_question_title_func($question,$question_type = '',$new_question_title=''){
     //$question_title = apply_filters('the_content', $question);
     $question_title = $question;
     global $wp_embed,$mlwQuizMasterNext;
     $question_title = $wp_embed->run_shortcode($question_title);
     $question_title = preg_replace("/\s*[a-zA-Z\/\/:\.]*youtube.com\/watch\?v=([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i","<iframe width=\"420\" height=\"315\" src=\"//www.youtube.com/embed/$1\" frameborder=\"0\" allowfullscreen></iframe>",$question_title);
     $polar_extra_class = '';
+    $question_display = '';
     if($question_type == 'polar'){
         $polar_extra_class = 'question-type-polar-s';
     }
@@ -1276,7 +1292,12 @@ function qsm_question_title_func($question,$question_type = ''){
     if( isset($qmn_quiz_options->enable_deselect_option) && $qmn_quiz_options->enable_deselect_option == 1 && ($question_type == 'multiple_choice' || $question_type == 'horizontal_multiple_choice') ){
        $deselect_answer = '<a href="#" class="qsm-deselect-answer">Deselect Answer</a>';
     }
-    $question_display = "<span class='mlw_qmn_question {$polar_extra_class}' >" . do_shortcode( htmlspecialchars_decode( $question_title, ENT_QUOTES ) ) . $deselect_answer . "</span>";
+    
+    if($new_question_title != ''){
+        $question_display .= "<span class='mlw_qmn_new_question'>" . sanitize_text_field( htmlspecialchars_decode( $new_question_title, ENT_QUOTES ) ) . "</span>";
+        $polar_extra_class .= ' qsm_remove_bold';
+    }
+    $question_display .= "<span class='mlw_qmn_question {$polar_extra_class}' >" . do_shortcode( htmlspecialchars_decode( $question_title, ENT_QUOTES ) ) . $deselect_answer . "</span>";
     return $question_display;
 }
 ?>
