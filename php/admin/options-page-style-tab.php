@@ -215,7 +215,7 @@ function qsm_options_styling_tab_content() {
                                 <div class="theme-screenshot">
                                     <img src="<?php echo $folder_slug . $theme_name . '/screenshot.png' ?>" />
                                 </div>
-                                <span class="more-details"><?php _e('Templates', 'quiz-master-next'); ?></span>
+                                <span class="more-details" style="display: none;"><?php _e('Templates', 'quiz-master-next'); ?></span>
                                 <div class="theme-id-container">
                                     <h2 class="theme-name" id="emarket-name"><?php echo $read_style_data['Name']; ?></h2>
                                     <div class="theme-actions">
