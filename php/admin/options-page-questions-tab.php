@@ -303,6 +303,7 @@ function qsm_options_questions_tab_content() {
                                                                             'options' => array(
                                                                                 'text' => __( 'Text Answers', 'quiz-master-next' ),
                                                                                 'rich' => __( 'Rich Answers', 'quiz-master-next' ),                                                                            
+                                                                                'image' => __( 'Image Answers', 'quiz-master-next' ),
                                                                             ),
                                                                             'default' => 'text',
                                                                             'show' => '0,1,2,4,13',
