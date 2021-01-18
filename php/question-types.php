@@ -306,7 +306,7 @@ function qmn_horizontal_multiple_choice_display($id, $question, $answers)
   //$question_title = apply_filters('the_content', $question);
   $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
   $question_display .= qsm_question_title_func($question,'horizontal_multiple_choice',$new_question_title, $id);
-  $question_display .= "<div class='qmn_radio_answers $mlw_requireClass'>";
+  $question_display .= "<div class='qmn_radio_answers qmn_radio_horizontal_answers $mlw_requireClass'>";
   if (is_array($answers))
   {
     $mlw_answer_total = 0;
