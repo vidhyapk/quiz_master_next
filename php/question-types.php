@@ -1008,7 +1008,7 @@ function qmn_horizontal_multiple_response_display($id, $question, $answers)
       $limit_mr_text = 'onchange="qsmCheckMR(this,'. $limit_multiple_response .')"';
   $new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting($id, 'question_title');  
   $question_display .= qsm_question_title_func($question, '', $new_question_title, $id);
-  $question_display .= "<div class='qmn_check_answers $mlw_requireClass'>";
+  $question_display .= "<div class='qmn_check_answers qmn_multiple_horizontal_check $mlw_requireClass'>";
   if (is_array($answers))
   {
     $mlw_answer_total = 0;
