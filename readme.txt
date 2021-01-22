@@ -2,9 +2,9 @@
 Contributors: quizsurvey,expresstech
 Tags: quiz, survey, lead, test, score, exam, questionnaire, question,wordpress quiz plugin
 Requires at least: 4.9
-Tested up to: 5.5.1
+Tested up to: 5.6
 Requires PHP: 5.4
-Stable tag: 7.1.6
+Stable tag: 7.1.10
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,40 @@ This is usually a theme conflict. You can [checkout out our common conflict solu
 8. Example Quiz With Styling
 
 == Changelog ==
+
+= 7.1.10 (December 29, 2020) =
+* Bug: Fixed the inconsistency between no of participants and available results.
+* Bug: Fixed incorrect pagination in results page.
+* Bug: Fixed the issue with interchanging of settings while using two quiz on same page.
+* Bug: Fixed shortcode not working while using rich answer.
+* Bug: Fixed ID and Class names not showing on result page while using rich answer.
+* Bug: Fixed selected options not being shown while using Polar question type.
+* Enhancement: Changed the captcha validation message.
+* Enhancement: Added the option to round off Score of correct/incorrect answer to a whole number.
+
+= 7.1.9 (December 14, 2020) =
+* Bug: Fixed the issue where answers with apostrophe's are not being recognized as correct.
+* Bug: Fixed the issue where inline are shown twice when Random Questions are enabled.
+* Bug: Fixed the issue with point score and maximum point variable
+* Bug: Fixed the issue where only last answer display as correct when all the answers were marked correct.
+* Enhancement: Added Limit Text option for paragraph question type.
+* Enhancement: Added an option for inserting a link in the Correct info.
+
+= 7.1.8 (November 18, 2020) =
+* Bug: Fixed required field not working while using Date question type.
+* Bug: Fixed the issue of right answers containing apostrophes marked as incorrect in Multiple Response/ Multiple Choice questions
+* Bug: Fixed incorrect message while using rich answer type while using Show results inline option.
+* Bug: Fixed CSS overlapping issue for quiz_section class while using auto pagination.
+* Bug: Fixed continuous loading of result page while using landing page addon.
+* Bug: Fixed number question type not being recorded while using Force submit after timer expires.
+* Enhancement: Allowed plus, dash, bracket and slash in phone contact field.
+* Enhancement: Added option to limit the characters in Number question type.
+
+= 7.1.7 (November 10, 2020) =
+* Bug: Fixed math formula not showing on result page.
+* Bug: Fixed incorrect results while using %POLL_RESULTS_X% template variable.
+* Bug: Fixed advanced timer not showing while questions per page option.
+* Bug: Fixed translation issue with string 'No Answer Provided'.
 
 = 7.1.6 (October 29, 2020) =
 * Bug: Fixed division by zero error while limiting number of questions.

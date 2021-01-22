@@ -56,7 +56,7 @@ var QSMPageTimer;
 					$('#quizForm' + quizID).closest('.qmn_quiz_container').find('.mlw_next').on('click', function (event) {
 						event.preventDefault();
 						if (qmn_quiz_data[quizID].hasOwnProperty('advanced_timer')) {
-							var start_timer = parseInt(qmn_quiz_data[quizID].advanced_timer.start_timer_page);
+							var start_timer = parseInt(qmn_quiz_data[quizID].advanced_timer.start_timer_page);                                                        
 							if ($('#quizForm' + quizID).closest('.qmn_quiz_container').find('.qmn_pagination > .current_page_hidden').val() == start_timer) {
 								QSM.activateTimer(quizID);
 								$('#quizForm' + quizID).closest('.qmn_quiz_container').find('.stoptimer-p').show();
@@ -79,9 +79,8 @@ var QSMPageTimer;
 					$('#quizForm' + quizID).closest('.qmn_quiz_container').find('.mlw_next').on('click', function (event) {
 						event.preventDefault();
 						if (qmn_quiz_data[quizID].hasOwnProperty('advanced_timer')) {
-							var start_timer = parseInt(qmn_quiz_data[quizID].advanced_timer.start_timer_page);
-
-							if ($('#quizForm' + quizID).closest('.qmn_quiz_container').find('.qmn_pagination > .current_page_hidden').val() == start_timer) {
+							var start_timer = parseInt(qmn_quiz_data[quizID].advanced_timer.start_timer_page);                                                        
+							if ($('#quizForm' + quizID).closest('.qmn_quiz_container').find('.qmn_pagination > .slide_number_hidden').val() == start_timer) {
 								QSM.activateTimer(quizID);
 								$('#quizForm' + quizID).closest('.qmn_quiz_container').find('.stoptimer-p').show();
 							}
@@ -157,26 +156,26 @@ var QSMPageTimer;
 			$timer.text( display );
 			document.title = display + ' ' + qsmTitleText;
 
-                        /*CUSTOM TIMER*/
-                        if(qmn_quiz_data[quizID].hasOwnProperty('advanced_timer') && qmn_quiz_data[quizID].advanced_timer.timer_design == 'big_timer'){
-                            $(".second.circle").parent('.mlw_quiz_form').addClass('qsm_big_timer');
-                            $(".second.circle").show();
-                            $(".second.circle strong").html(display);
-                            var datashow =( $(".hiddentimer").html() - secondsRemaining ) / $(".hiddentimer").html();
-                            $(".second.circle").circleProgress({
-                                    startAngle: 11,
-                                    value: datashow,
-                                    animation: false,
-                                    fill: {gradient: ["#00bb40", "#00511c"]}
-                            });
-                        }
+			/*CUSTOM TIMER*/
+			if(qmn_quiz_data[quizID].hasOwnProperty('advanced_timer') && qmn_quiz_data[quizID].advanced_timer.timer_design == 'big_timer'){
+				$(".second.circle").parent('.mlw_quiz_form').addClass('qsm_big_timer');
+				$(".second.circle").show();
+				$(".second.circle strong").html(display);
+				var datashow =( $(".hiddentimer").html() - secondsRemaining ) / $(".hiddentimer").html();
+				$(".second.circle").circleProgress({
+					startAngle: 11,
+					value: datashow,
+					animation: false,
+					fill: {gradient: ["#00bb40", "#00511c"]}
+				});
+			}
 
-                        var $quizForm = QSM.getQuizForm( quizID );
-                        var total_seconds = parseFloat( qmn_quiz_data[ quizID ].timer_limit ) * 60;
-                        var ninety_sec = total_seconds - ( total_seconds * 90 / 100 );
-                        if(ninety_sec == secondsRemaining){
-                            $quizForm.closest( '.qmn_quiz_container' ).find('.qsm_ninety_warning').fadeIn();
-                        }
+			var $quizForm = QSM.getQuizForm( quizID );
+			var total_seconds = parseFloat( qmn_quiz_data[ quizID ].timer_limit ) * 60;
+			var ninety_sec = total_seconds - ( total_seconds * 90 / 100 );
+			if(ninety_sec == secondsRemaining){
+				$quizForm.closest( '.qmn_quiz_container' ).find('.qsm_ninety_warning').fadeIn();
+			}
 
 			// If timer is run out, disable fields.
 			if ( 0 >= secondsRemaining ) {
@@ -186,17 +185,15 @@ var QSMPageTimer;
 				$( ".mlw_qmn_quiz select" ).attr( 'disabled', true );
 				$( ".mlw_qmn_question_comment" ).attr( 'disabled', true );
 				$( ".mlw_answer_open_text" ).attr( 'disabled', true );
-				$( ".mlw_answer_number" ).attr( 'disabled', true );
+				$( ".mlw_answer_number" ).attr( 'readonly', true );
 
 				$quizForm.closest( '.qmn_quiz_container' ).addClass( 'qsm_timer_ended' );
-                                $quizForm.closest( '.qmn_quiz_container' ).prepend('<p style="color: red;">Quiz time is over</p>');
-                                //$( ".qsm-submit-btn" ).remove();
-                                if(qmn_ajax_object.enable_result_after_timer_end == 1){
-                                    $quizForm.closest( '.qmn_quiz_container' ).find('.qsm-submit-btn').trigger('click');
-                                }else{
-                                    MicroModal.show( 'modal-3' );
-                                }
-				//document.quizForm.submit();
+				$quizForm.closest( '.qmn_quiz_container' ).prepend('<p style="color: red;">Quiz time is over</p>');
+				if(qmn_quiz_data[ quizID ].enable_result_after_timer_end == 1){
+					$quizForm.closest( '.qmn_quiz_container' ).find('.qsm-submit-btn').trigger('click');
+				}else{
+					MicroModal.show( 'modal-3' );
+				}
 				return;
 			}
 		},
@@ -715,7 +712,10 @@ function qmnValidation( element, quiz_form_id ) {
 					qmnDisplayError( number_error, jQuery( this ), quiz_form_id );
 					result =  false;
 				}
-
+                                if( jQuery( this ).attr( 'class' ).indexOf( 'mlwRequiredDate' ) > -1 && this.value === "" ) {
+					qmnDisplayError( empty_error, jQuery( this ), quiz_form_id );
+					result =  false;
+				}
 				if( jQuery( this ).attr( 'class' ).indexOf( 'mlwRequiredText' ) > -1 && this.value === "" ) {
 					qmnDisplayError( empty_error, jQuery( this ), quiz_form_id );
 					result =  false;
@@ -730,7 +730,7 @@ function qmnValidation( element, quiz_form_id ) {
 				}                                
 				if( jQuery( this ).attr( 'class' ).indexOf( 'mlwRequiredRadio' ) > -1 ) {
 					check_val = jQuery( this ).find( 'input:checked' ).val();
-					if ( check_val == "No Answer Provided" ) {
+					if ( check_val == "No Answer Provided" || check_val == "" ) {
 						qmnDisplayError( empty_error, jQuery( this ), quiz_form_id );
 						result =  false;
 					}
@@ -744,7 +744,7 @@ function qmnValidation( element, quiz_form_id ) {
 				}
 				if( jQuery( this ).attr( 'class' ).indexOf( 'qsmRequiredSelect' ) > -1 ) {
 					check_val = jQuery( this ).val();
-					if ( check_val == "No Answer Provided" ) {
+					if ( check_val == "No Answer Provided" || check_val == "" ) {
 						qmnDisplayError( empty_error, jQuery( this ), quiz_form_id );
 						result =  false;
 					}
@@ -1147,169 +1147,159 @@ jQuery(function() {
 		}
 	});
 
-	// jQuery( '.qmn_quiz_form' ).on( "submit", function( event ) {
 	jQuery(document).on( 'click', ".qsm-submit-btn", function( event ) {
 		event.preventDefault();
 		var form = jQuery(this).closest('form')[0];
 		qmnFormSubmit( form.id );
 	});
 
-        jQuery(document).on('click','.btn-reload-quiz',function(e){
-            e.preventDefault();
-            var quiz_id = jQuery(this).data('quiz_id');
-            var parent_div = jQuery(this).parents('.qsm-quiz-container');
-            qsmDisplayLoading( parent_div );
-            jQuery.ajax({
-                type: 'POST',
-                url: qmn_ajax_object.ajaxurl,
-                data: {
-                    action: "qsm_get_quiz_to_reload",
-                    quiz_id: quiz_id,
-                },
-                success: function (response) {
-                    parent_div.replaceWith(response);
-                    //Reload the timer and pagination
-                    QSM.init();                    
-                    qmnInit();                    
-                    QSM.initTimer( quiz_id );                    
-                    jQuery("input[name='timer_ms']").each(function(){
-                        var timems = qsmTimeInMS();
-                        jQuery(this).val(timems);
-                    });
-                    setInterval( qmnTimeTakenTimer, 1000 );
-                },
-                error: function (errorThrown) {
-                    console.log( 'error' );                    
-                }
-            });
-        });
-
-        jQuery(document).on('change','.qmn_radio_answers input',function(e){
-            if(qmn_ajax_object.enable_quick_result_mc == 1){
-                var question_id = jQuery(this).attr('name').split('question')[1],
-                    value = jQuery(this).val(),
-                    $this = jQuery(this).parents('.quiz_section');
-
-                jQuery.ajax({
-                    type: 'POST',
-                    url: qmn_ajax_object.ajaxurl,
-                    data: {
-                        action: "qsm_get_question_quick_result",
-                        question_id: question_id,
-                        answer: value,
-                        show_correct_info: qmn_ajax_object.enable_quick_correct_answer_info
-                    },
-                    success: function (response) {
-                        var data = jQuery.parseJSON( response );
-                        $this.find('.quick-question-res-p').remove();
-                        $this.find('.qsm-inline-correct-info').remove();
-                        if(data.success == 'correct'){
-                            $this.append('<p style="color: green" class="quick-question-res-p">' + qmn_ajax_object.quick_result_correct_text + '</p>')
-                            $this.append('<p class="qsm-inline-correct-info">'+ data.message +'</p>');
-                        }else if(data.success == 'incorrect'){
-                            $this.append('<p style="color: red" class="quick-question-res-p">' + qmn_ajax_object.quick_result_wrong_text + '</p>')
-                            $this.append('<p class="qsm-inline-correct-info">'+ data.message +'</p>');
-                        }
-                    },
-                    error: function (errorThrown) {
-                        alert(errorThrown);
-                    }
-                });
-            }
-        });
-
-        /*jQuery('.qmn_radio_answers > .qmn_mc_answer_wrap').on('click',function(event){
-            var radButton = jQuery(this).find('input[type=radio]');
-            if(event.target.className == 'qmn_quiz_radio'){
-                return true;
-            }
-            if(radButton.is(':checked')){
-              jQuery(radButton).prop("checked", false);
-            } else {
-              jQuery(radButton).prop("checked", true);
-            }
-        });*/
-        //Ajax upload file code
-        jQuery('.quiz_section .mlw_answer_file_upload').on('change', function(){
-            var $this = jQuery(this);
-            var hidden_val = jQuery(this).parent('.quiz_section').find('.mlw_file_upload_hidden_path').val();
-            var file_data = jQuery(this).prop('files')[0];
-            var form_data = new FormData();
-            form_data.append('file', file_data);
-            form_data.append('action', 'qsm_upload_image_fd_question');
-            var question_id = $this.parent('.quiz_section').find('.mlw_file_upload_hidden_value').attr("name").replace('question','');
-            form_data.append('question_id', question_id);
-            $this.next('.loading-uploaded-file').show();
-            jQuery.ajax({
-                url: qmn_ajax_object.ajaxurl,
-                type: 'POST',
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    var obj = jQuery.parseJSON(response);
-                    $this.next('.loading-uploaded-file').hide();
-                    if(obj.type == 'success'){
-                        $this.next().next('.remove-uploaded-file').show();
-                        $this.next().next().next('.mlw_file_upload_hidden_value').val(obj.file_url);
-                        $this.parent('.quiz_section').find('.mlw_file_upload_hidden_path').val(obj.file_path);
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').hide();
-                    }else{
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').text('').text(obj.message);
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').show();
-                        $this.parent('.quiz_section').find('.mlw_answer_file_upload').val('');
-                    }
-                }
-            });
-            return false;
-        });
-
-        //Ajax remove file code
-        jQuery('.quiz_section .remove-uploaded-file').on('click', function(){
-            var $this = jQuery(this);
-            var file_data = jQuery(this).parent('.quiz_section').find('.mlw_file_upload_hidden_path').val();
-            var form_data = new FormData();
-            form_data.append('action', 'qsm_remove_file_fd_question');
-            form_data.append('file_url', file_data);
-            jQuery.ajax({
-                url: qmn_ajax_object.ajaxurl,
-                type: 'POST',
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    var obj = jQuery.parseJSON(response);
-                    if(obj.type == 'success'){
-                        $this.hide();
-                        $this.parent('.quiz_section').find('.mlw_file_upload_hidden_value').val('');
-                        $this.parent('.quiz_section').find('.mlw_file_upload_hidden_path').val('');
-                        $this.parent('.quiz_section').find('.mlw_answer_file_upload').val('');
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').hide();
-                    }else{
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').text('').text(obj.message);
-                        $this.parent('.quiz_section').find('.mlw-file-upload-error-msg').show();
-                    }
-                }
-            });
-            return false;
-        });
-
-        //Deselect all answer on select
-        jQuery('.qsm-deselect-answer').click(function(e){
-            e.preventDefault();
-            jQuery(this).parents('.quiz_section').find('input[type="radio"]').prop('checked', false);
-            jQuery(this).parents('.quiz_section').find('input[type="radio"][value="No Answer Provided"]').prop('checked', true);
-        });
-
-        //Submit the form on popup click
-        jQuery(document).on( 'click', '.submit-the-form', function(e) {
-            e.preventDefault();
-            // Triggger the click event on the quiz form's submit button.
-			jQuery( '.qsm-submit-btn' ).trigger( 'click' );
-            jQuery('#modal-3').removeClass('is-open');
+	jQuery(document).on('click', '.btn-reload-quiz', function (e) {
+		e.preventDefault();
+		var quiz_id = jQuery(this).data('quiz_id');
+		var parent_div = jQuery(this).parents('.qsm-quiz-container');
+		qsmDisplayLoading(parent_div);
+		jQuery.ajax({
+			type: 'POST',
+			url: qmn_ajax_object.ajaxurl,
+			data: {
+				action: "qsm_get_quiz_to_reload",
+				quiz_id: quiz_id,
+			},
+			success: function (response) {
+				parent_div.replaceWith(response);
+				//Reload the timer and pagination
+				QSM.init();
+				qmnInit();
+				QSM.initTimer(quiz_id);
+				jQuery("input[name='timer_ms']").each(function () {
+					var timems = qsmTimeInMS();
+					jQuery(this).val(timems);
+				});
+				setInterval(qmnTimeTakenTimer, 1000);
+			},
+			error: function (errorThrown) {
+				console.log('error');
+			}
 		});
+	});
+
+	jQuery(document).on('change','.qmn_radio_answers input',function(e){
+		var quizID = jQuery(this).parents('.qsm-quiz-container').find('.qmn_quiz_id').val();
+		if (qmn_quiz_data[ quizID ].enable_quick_result_mc == 1) {
+			var question_id = jQuery(this).attr('name').split('question')[1],
+					value = jQuery(this).val(),
+					$this = jQuery(this).parents('.quiz_section');
+			jQuery.ajax({
+				type: 'POST',
+				url: qmn_ajax_object.ajaxurl,
+				data: {
+					action: "qsm_get_question_quick_result",
+					question_id: question_id,
+					answer: value,
+					show_correct_info: qmn_quiz_data[ quizID ].enable_quick_correct_answer_info
+				},
+				success: function (response) {
+					var data = jQuery.parseJSON(response);
+					$this.find('.quick-question-res-p').remove();
+					$this.find('.qsm-inline-correct-info').remove();
+					if (data.success == 'correct') {
+						$this.append('<div style="color: green" class="quick-question-res-p">' + qmn_quiz_data[ quizID ].quick_result_correct_answer_text + '</div>')
+						$this.append('<div class="qsm-inline-correct-info">' + data.message + '</div>');
+					} else if (data.success == 'incorrect') {
+						$this.append('<div style="color: red" class="quick-question-res-p">' + qmn_quiz_data[ quizID ].quick_result_wrong_answer_text + '</div>')
+						$this.append('<div class="qsm-inline-correct-info">' + data.message + '</div>');
+					}
+					MathJax.Hub.queue.Push(["Typeset", MathJax.Hub]);
+				},
+				error: function (errorThrown) {
+					alert(errorThrown);
+				}
+			});
+		}
+	});
+
+	//Ajax upload file code
+	jQuery('.quiz_section .mlw_answer_file_upload').on('change', function(){
+		var $this = jQuery(this);
+		var hidden_val = jQuery(this).parent('.quiz_section').find('.mlw_file_upload_hidden_path').val();
+		var file_data = jQuery(this).prop('files')[0];
+		var form_data = new FormData();
+		form_data.append('file', file_data);
+		form_data.append('action', 'qsm_upload_image_fd_question');
+		var question_id = $this.parent('.quiz_section').find('.mlw_file_upload_hidden_value').attr("name").replace('question','');
+		form_data.append('question_id', question_id);
+		$this.next('.loading-uploaded-file').show();
+		jQuery.ajax({
+			url: qmn_ajax_object.ajaxurl,
+			type: 'POST',
+			data: form_data,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function (response) {
+				var obj = jQuery.parseJSON(response);
+				$this.next('.loading-uploaded-file').hide();
+				if(obj.type == 'success'){
+					$this.next().next('.remove-uploaded-file').show();
+					$this.next().next().next('.mlw_file_upload_hidden_value').val(obj.file_url);
+					$this.parent('.quiz_section').find('.mlw_file_upload_hidden_path').val(obj.file_path);
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').hide();
+				}else{
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').text('').text(obj.message);
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').show();
+					$this.parent('.quiz_section').find('.mlw_answer_file_upload').val('');
+				}
+			}
+		});
+		return false;
+	});
+
+	//Ajax remove file code
+	jQuery('.quiz_section .remove-uploaded-file').on('click', function(){
+		var $this = jQuery(this);
+		var file_data = jQuery(this).parent('.quiz_section').find('.mlw_file_upload_hidden_path').val();
+		var form_data = new FormData();
+		form_data.append('action', 'qsm_remove_file_fd_question');
+		form_data.append('file_url', file_data);
+		jQuery.ajax({
+			url: qmn_ajax_object.ajaxurl,
+			type: 'POST',
+			data: form_data,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function (response) {
+				var obj = jQuery.parseJSON(response);
+				if(obj.type == 'success'){
+					$this.hide();
+					$this.parent('.quiz_section').find('.mlw_file_upload_hidden_value').val('');
+					$this.parent('.quiz_section').find('.mlw_file_upload_hidden_path').val('');
+					$this.parent('.quiz_section').find('.mlw_answer_file_upload').val('');
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').hide();
+				}else{
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').text('').text(obj.message);
+					$this.parent('.quiz_section').find('.mlw-file-upload-error-msg').show();
+				}
+			}
+		});
+		return false;
+	});
+
+	//Deselect all answer on select
+	jQuery('.qsm-deselect-answer').click(function(e){
+		e.preventDefault();
+		jQuery(this).parents('.quiz_section').find('input[type="radio"]').prop('checked', false);
+		jQuery(this).parents('.quiz_section').find('input[type="radio"][value="No Answer Provided"]').prop('checked', true);
+		jQuery(this).parents('.quiz_section').find('input[type="radio"][value=""]').prop('checked', true);
+	});
+
+	//Submit the form on popup click
+	jQuery(document).on( 'click', '.submit-the-form', function(e) {
+		e.preventDefault();
+		// Triggger the click event on the quiz form's submit button.
+		jQuery( '.qsm-submit-btn' ).trigger( 'click' );
+		jQuery('#modal-3').removeClass('is-open');
+	});
 
 	jQuery('.pagetime-goto-nextpage').click(function (e) {
 		e.preventDefault();
@@ -1317,6 +1307,31 @@ jQuery(function() {
 		QSM.nextPage(quiz_id);
 		var $container = jQuery('#quizForm' + quiz_id).closest('.qmn_quiz_container');
 		qsmScrollTo($container);
+	});
+        
+	jQuery(document).on('keyup', '.mlwPhoneNumber', function(e){
+            this.value = this.value.replace(/[^- +()0-9\.]/g,'');
+        });
+
+	jQuery(document).on('click', '.qsm_social_share_link', function (e) {
+		e.preventDefault();
+		var network = jQuery(this).attr('data-network');
+		var share_url = jQuery(this).attr('data-link');
+		var social_text = jQuery(this).attr('data-text');
+		var social_id = jQuery(this).attr('data-id');
+		var url = '';
+		if (network == 'facebook') {
+			url = "https://www.facebook.com/dialog/feed?" + "display=popup&" + "app_id=" + social_id +
+					"&" + "link=" + encodeURIComponent(share_url) + "&" + "name=" + social_text;
+		}
+		if (network == 'twitter') {
+			url = "https://twitter.com/intent/tweet?text=" + social_text;
+		}
+		var sTop = window.screen.height / 2 - (218);
+		var sLeft = window.screen.width / 2 - (313);
+		var sqShareOptions = "height=400,width=580,toolbar=0,status=0,location=0,menubar=0,directories=0,scrollbars=0,top=" + sTop + ",left=" + sLeft;
+		window.open(url, "Share", sqShareOptions);
+		return false;
 	});
 });
 

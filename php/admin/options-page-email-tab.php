@@ -111,6 +111,7 @@ function qsm_options_emails_tab_content() {
 				<?php do_action( 'qsm_email_condition_operator' ); ?>
 			</select>
 			<input type="text" class="email-condition-value" value="{{ data.value }}">
+			<?php do_action('qsm_email_condition_value'); ?>
 		</div>
 	</script>
         
@@ -145,6 +146,8 @@ function qsm_options_emails_tab_content() {
                         unset($variable_list['%USER_COMMENTS%']);
                         unset($variable_list['%CORRECT_ANSWER_INFO%']);
                         unset($variable_list['%QUESTIONS_ANSWERS%']);
+                        unset($variable_list['%FACEBOOK_SHARE%']);
+                        unset($variable_list['%TWITTER_SHARE%']);
                         if( $variable_list ){
                             foreach ( $variable_list as $key => $s_variable ) { ?>
                                 <div class="popup-template-span-wrap">

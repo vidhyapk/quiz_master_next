@@ -90,6 +90,21 @@ class QSM_Install {
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_options' );
 	
+	// Registers Rounding setting
+    $field_array = array(
+      'id' => 'score_roundoff',
+      'label' => __('Allow Score Round-off', 'quiz-master-next'),
+      'type' => 'checkbox',
+      'options' => array(
+        array(
+          'value' => 1
+        )
+      ),
+      'default' => 0,
+	  'show_option' => 'form_type_0'
+    );
+    $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_options' );
+	
 	// Registers progress_bar setting
     $field_array = array(
 		'id' => 'progress_bar',
@@ -822,7 +837,8 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
-        '%CURRENT_DATE%'
+        '%QUIZ_LINK%',
+        '%CURRENT_DATE%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -835,7 +851,8 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
-        '%CURRENT_DATE%'
+        '%QUIZ_LINK%',
+        '%CURRENT_DATE%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -848,7 +865,8 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
-        '%CURRENT_DATE%'
+        '%QUIZ_LINK%',
+        '%CURRENT_DATE%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -861,6 +879,7 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
+        '%QUIZ_LINK%',
         '%CURRENT_DATE%'
       )
     );
@@ -874,7 +893,8 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
-        '%CURRENT_DATE%'
+        '%QUIZ_LINK%',
+        '%CURRENT_DATE%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -887,7 +907,8 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
-        '%CURRENT_DATE%'
+        '%QUIZ_LINK%',
+        '%CURRENT_DATE%',
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -900,6 +921,7 @@ class QSM_Install {
       'default' => 0,
       'variables' => array(
         '%QUIZ_NAME%',
+        '%QUIZ_LINK%',
         '%CURRENT_DATE%'
       )
     );
@@ -918,7 +940,8 @@ class QSM_Install {
         '%CORRECT_ANSWER%',
         '%USER_COMMENTS%',
         '%CORRECT_ANSWER_INFO%',
-        '%QUESTION_POINT_SCORE%'
+        '%QUESTION_POINT_SCORE%',
+        '%QUESTION_MAX_POINTS%'
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -934,7 +957,9 @@ class QSM_Install {
         '%USER_ANSWER%',
         '%CORRECT_ANSWER%',
         '%USER_COMMENTS%',
-        '%CORRECT_ANSWER_INFO%'
+        '%CORRECT_ANSWER_INFO%',
+        '%QUESTION_POINT_SCORE%',
+        '%QUESTION_MAX_POINTS%'
       )
     );
     $mlwQuizMasterNext->pluginHelper->register_quiz_setting( $field_array, 'quiz_text' );
@@ -952,6 +977,8 @@ class QSM_Install {
         '%TOTAL_QUESTIONS%',
         '%CORRECT_SCORE%',
         '%QUIZ_NAME%',
+        '%QUIZ_LINK%',
+        '%RESULT_LINK%',
         '%TIMER%',
         '%CURRENT_DATE%'
       )
@@ -971,6 +998,8 @@ class QSM_Install {
         '%TOTAL_QUESTIONS%',
         '%CORRECT_SCORE%',
         '%QUIZ_NAME%',
+        '%QUIZ_LINK%',
+        '%RESULT_LINK%',
         '%TIMER%',
         '%CURRENT_DATE%'
       )
@@ -1176,7 +1205,7 @@ class QSM_Install {
   			message_after TEXT NOT NULL,
   			message_comment TEXT NOT NULL,
   			message_end_template TEXT NOT NULL,
-  			user_email_template TEXT NOT NULL,
+  			user_email_template LONGTEXT NOT NULL,
   			admin_email_template TEXT NOT NULL,
   			submit_button_text TEXT NOT NULL,
   			name_field_text TEXT NOT NULL,
@@ -1331,7 +1360,7 @@ class QSM_Install {
    */
   public function update() {
     global $mlwQuizMasterNext;
-  	$data = $mlwQuizMasterNext->version;
+  	$data = $mlwQuizMasterNext->version ;
   	if ( ! get_option( 'qmn_original_version' ) ) {
   		add_option( 'qmn_original_version', $data );
     }
@@ -1697,6 +1726,14 @@ class QSM_Install {
   			$update_sql = "UPDATE ".$table_name." SET question_type_new=question_type";
   			$results = $wpdb->query( $update_sql );
   		}
+		
+		//Update 7.1.11
+		$user_email_template_data= $wpdb->get_row("SHOW COLUMNS FROM ".$wpdb->prefix."mlw_quizzes LIKE 'user_email_template'");
+		if($user_email_template_data->Type == "text")
+		{
+			$sql = "ALTER TABLE ".$wpdb->prefix."mlw_quizzes  CHANGE user_email_template user_email_template LONGTEXT NOT NULL";
+  			$results = $wpdb->query( $sql );
+		}
 
   		//Update 2.6.1
   		$results = $wpdb->query( "ALTER TABLE ".$wpdb->prefix . "mlw_qm_audit_trail CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;" );
