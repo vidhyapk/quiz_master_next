@@ -143,15 +143,15 @@ function qsm_options_styling_tab_content() {
         }
     }
     //Include required custom js and css    
-    wp_enqueue_script( 'micromodal_script', plugins_url( '../../js/micromodal.min.js', __FILE__ ) );
-    wp_enqueue_script( 'qsm_theme_color_js', plugins_url( '../../js/qsm-theme-color.js', __FILE__ ), array( 'jquery', 'wp-color-picker', 'micromodal_script' ), $mlwQuizMasterNext->version );
-    wp_enqueue_style( 'wp-color-picker' );
-    wp_enqueue_style( 'qsm_admin_style', plugins_url( '../../css/qsm-admin.css', __FILE__ ) );    
+    wp_enqueue_script('micromodal_script', plugins_url('../../js/micromodal.min.js', __FILE__));
+    wp_enqueue_script('qsm_theme_color_js', plugins_url('../../js/qsm-theme-color.js', __FILE__), array('jquery', 'wp-color-picker', 'micromodal_script'), $mlwQuizMasterNext->version);
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_style('qsm_admin_style', plugins_url('../../css/qsm-admin.css', __FILE__));
     ?>
     <script type="text/javascript">
         jQuery(document).ready(function () {
             jQuery(document).on('click', '.qsm-activate-theme', function () {
-                jQuery(this).parents('.theme-wrapper').find('input[name=quiz_new_theme]').prop("checked",true);
+                jQuery(this).parents('.theme-wrapper').find('input[name=quiz_new_theme]').prop("checked", true);
             });
         });
     </script>    
@@ -171,53 +171,91 @@ function qsm_options_styling_tab_content() {
     }
     //Read all the themes
     $saved_quiz_theme = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');
-    if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {        
+    if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {
         unset($_POST['save_theme_settings_nonce']);
         unset($_POST['_wp_http_referer']);
         $settings_array = array();
-        if( $_POST ){
-            foreach ( $_POST as $key => $single_post ) {
-                $sanitized_value = sanitize_text_field( stripslashes( $single_post ) );
-                $settings_array[ $key ] = $sanitized_value;
-            }            
-        }        
-        $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting( 'theme_settings_' . $saved_quiz_theme, $settings_array );
+        if ($_POST) {
+            foreach ($_POST as $key => $single_post) {
+                $sanitized_value = sanitize_text_field(stripslashes($single_post));
+                $settings_array[$key] = $sanitized_value;
+            }
+        }
+        $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('theme_settings_' . $saved_quiz_theme, $settings_array);
         $mlwQuizMasterNext->alertManager->newAlert(__('The theme settings saved successfully.', 'quiz-master-next'), 'success');
         $mlwQuizMasterNext->audit_manager->new_audit("Theme settings Have Been Saved For Quiz Number $quiz_id");
     }
     $folder_name = QSM_THEME_PATH;
     $folder_slug = QSM_THEME_SLUG;
-    $theme_folders = scandir($folder_name);
-    $theme_folders = apply_filters( 'qsm_theme_list', $theme_folders );
-    if ($theme_folders) { ?>
-        <div class="wp-filter hide-if-no-js">
-            <ul class="filter-links">
-                <li>
-                    <a href="#" class="current"><?php _e('My Themes', 'quiz-master-next'); ?></a>
-                </li>
-                <li>
-                    <a href="#"><?php _e('Premium Themes', 'quiz-master-next'); ?></a>
-                </li>
-                <?php do_action( 'qsm_add_filter_menu' ); ?>
-            </ul>
-        </div>
-        <?php
-        echo '<form method="POST" action="">';
-        wp_nonce_field('quiz_theme_integration', 'quiz_theme_integration_nouce');
-        ?>
-        <div class="theme-browser rendered">
-            <div class="themes wp-clearfix">
-                <div class="theme-wrapper theme <?php if( $saved_quiz_theme == '' ){ echo 'active'; } ?>">
-                    <input style="display: none" type="radio" name="quiz_new_theme" value="default" <?php checked($saved_quiz_theme, 'default', true); ?>>
-                    <div class="theme-screenshot">
-                        <img src="http://localhost/work/et/qsm/wp-content/themes/twentytwenty/screenshot.png">
-                    </div>                  
-                    <div class="theme-id-container">
-                        <h2 class="theme-name" id="emarket-name"><?php echo __('Default Theme', 'quiz-master-next'); ?></h2>                        
+    $theme_folders = array();
+    if( is_dir( $folder_name ) ) {
+        $theme_folders = scandir($folder_name);    
+    }
+    $theme_folders = apply_filters('qsm_theme_list', $theme_folders);
+    $post_permalink = $edit_link = '';
+    // Get quiz post based on quiz id
+    $args = array(
+        'posts_per_page' => 1,
+        'post_type' => 'qsm_quiz',
+        'meta_query' => array(
+            array(
+                'key' => 'quiz_id',
+                'value' => $quiz_id,
+                'compare' => '=',
+            ),
+        ),
+    );
+    $the_query = new WP_Query($args);
+    if ($the_query->have_posts()) {
+        while ($the_query->have_posts()) {
+            $the_query->the_post();
+            $post_permalink = get_the_permalink(get_the_ID());
+            $edit_link = get_edit_post_link(get_the_ID());
+        }
+        /* Restore original Post Data */
+        wp_reset_postdata();
+    }
+    ?>
+    <div class="wp-filter hide-if-no-js">
+        <ul class="filter-links">
+            <li>
+                <a href="#" class="current"><?php _e('My Themes', 'quiz-master-next'); ?></a>
+            </li>
+            <li>
+                <a href="#"><?php _e('Premium Themes', 'quiz-master-next'); ?></a>
+            </li>
+            <?php do_action('qsm_add_filter_menu'); ?>
+        </ul>
+    </div>
+    <?php
+    echo '<form method="POST" action="">';
+    wp_nonce_field('quiz_theme_integration', 'quiz_theme_integration_nouce');
+    ?>
+    <div class="theme-browser rendered">
+        <div class="themes wp-clearfix">
+            <div class="theme-wrapper theme <?php
+            if ($saved_quiz_theme == '') {
+                echo 'active';
+            }
+            ?>">
+                <input style="display: none" type="radio" name="quiz_new_theme" value="default" <?php checked($saved_quiz_theme, 'default', true); ?>>
+                <div class="theme-screenshot">
+                    <img src="<?php echo QSM_PLUGIN_URL . '/assets/screenshot-default-theme.png'; ?>">
+                </div>                  
+                <div class="theme-id-container">
+                    <h2 class="theme-name" id="emarket-name"><?php echo __('Default Theme', 'quiz-master-next'); ?></h2>
+                    <div class="theme-actions">
+                        <?php if ($saved_quiz_theme != 'default') { ?>
+                            <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                        <?php } else { ?>
+                            <a target="_blank" class="button button-primary qsm-customize-color-settings" href="<?php echo $post_permalink; ?>"><?php _e('Quiz Preview', 'quiz-master-next') ?></a>
+                        <?php } ?>
                     </div>
                 </div>
-                <?php do_action( 'qsm_add_after_default_theme' ); ?>
-                <?php
+            </div>
+            <?php do_action('qsm_add_after_default_theme'); ?>
+            <?php
+            if ($theme_folders) {
                 foreach ($theme_folders as $key => $theme_name) {
                     if ($theme_name !== '.' && $theme_name !== '..') {
                         if (file_exists($folder_name . $theme_name . '/style.css')) {
@@ -248,17 +286,17 @@ function qsm_options_styling_tab_content() {
                                     </div>
                                 </div>
                             </div>
-                            <?php 
-                            do_action( 'qsm_add_after_themes' );
+                            <?php
+                            do_action('qsm_add_after_themes');
                         }
                     }
                 }
-                ?>
-            </div>
+            }
+            ?>
         </div>
-        <?php
-        echo '</form>';
-    }
+    </div>
+    <?php
+    echo '</form>';
     ?>
     <div class="qsm-popup qsm-popup-slide qsm-theme-color-settings" id="qsm-theme-color-settings" aria-hidden="true">
         <div class="qsm-popup__overlay" tabindex="-1" data-micromodal-close>
@@ -269,15 +307,15 @@ function qsm_options_styling_tab_content() {
                 </header>
                 <main class="qsm-popup__content" id="thme-color-settings-content">
                     <form action="" method="post" class="qsm-theme-settings-frm">
-                        <?php wp_nonce_field( 'save_theme_settings','save_theme_settings_nonce' ); ?>
+                        <?php wp_nonce_field('save_theme_settings', 'save_theme_settings_nonce'); ?>
                         <table class="form-table" style="width: 100%;">
                             <?php
-                            $get_theme_settings = $mlwQuizMasterNext->pluginHelper->get_quiz_setting( 'theme_settings_' . $saved_quiz_theme );
+                            $get_theme_settings = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('theme_settings_' . $saved_quiz_theme);
                             $theme_settings = array();
-                            $theme_settings = apply_filters( 'qsm_theme_settings', $theme_settings, $quiz_id );
-                            if( $theme_settings ){
-                                foreach( $theme_settings as $key => $theme_val ){
-                                    $setting_val = isset( $get_theme_settings[$theme_val['id']] ) ? $get_theme_settings[$theme_val['id']] : $theme_val['default'];
+                            $theme_settings = apply_filters('qsm_theme_settings', $theme_settings, $quiz_id);
+                            if ($theme_settings) {
+                                foreach ($theme_settings as $key => $theme_val) {
+                                    $setting_val = isset($get_theme_settings[$theme_val['id']]) ? $get_theme_settings[$theme_val['id']] : $theme_val['default'];
                                     ?>
                                     <tr valign="top">
                                         <th scope="row" class="qsm-opt-tr">
@@ -287,15 +325,16 @@ function qsm_options_styling_tab_content() {
                                             <input name="<?php echo $theme_val['id']; ?>" type="text" value="<?php echo $setting_val; ?>" data-default-color="<?php echo $setting_val; ?>" class="my-color-field" />
                                         </td>
                                     </tr>
-                                <?php                    
+                                    <?php
                                 }
-                            } else { ?>
+                            } else {
+                                ?>
                                 <tr>
                                     <td colspan="2">
                                         <?php _e('No settings found', 'quiz-master-next'); ?>
                                     </td>
                                 </tr>
-                            <?php                
+                                <?php
                             }
                             ?>
                         </table>                        
@@ -312,49 +351,51 @@ function qsm_options_styling_tab_content() {
 }
 
 add_action('admin_menu', 'qsm_register_theme_Setting_submenu_page');
-function qsm_register_theme_Setting_submenu_page(){
-    add_submenu_page( NULL, __( 'Theme Settings', 'quiz-master-next' ), __( 'Theme Settings', 'quiz-master-next' ), 'manage_options', 'qmn_theme_settings', 'qsm_display_theme_settings' );
+
+function qsm_register_theme_Setting_submenu_page() {
+    add_submenu_page(NULL, __('Theme Settings', 'quiz-master-next'), __('Theme Settings', 'quiz-master-next'), 'manage_options', 'qmn_theme_settings', 'qsm_display_theme_settings');
 }
-function qsm_display_theme_settings(){ 
+
+function qsm_display_theme_settings() {
     global $mlwQuizMasterNext, $wpdb;
-    $quiz_id = isset( $_GET['quiz_id'] ) ? intval( $_GET['quiz_id'] ) : 0;
+    $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
     $theme_name = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');
-    if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {        
+    if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {
         unset($_POST['save_theme_settings_nonce']);
         unset($_POST['_wp_http_referer']);
         $settings_array = array();
-        if( $_POST ){
-            foreach ( $_POST as $key => $single_post ) {
-                $sanitized_value = sanitize_text_field( stripslashes( $single_post ) );
-                $settings_array[ $key ] = $sanitized_value;
-            }            
-        }        
-        $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting( 'theme_settings_' . $theme_name, $settings_array );
+        if ($_POST) {
+            foreach ($_POST as $key => $single_post) {
+                $sanitized_value = sanitize_text_field(stripslashes($single_post));
+                $settings_array[$key] = $sanitized_value;
+            }
+        }
+        $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('theme_settings_' . $theme_name, $settings_array);
         ?>
         <div class="notice notice-success is-dismissible" style="margin-top:30px;">
-            <p><?php _e( 'Theme settings are saved!', 'quiz-master-next' ); ?></p>
+            <p><?php _e('Theme settings are saved!', 'quiz-master-next'); ?></p>
         </div>
         <?php
     }
-    $get_theme_settings = $mlwQuizMasterNext->pluginHelper->get_quiz_setting( 'theme_settings_' . $theme_name );    
+    $get_theme_settings = $mlwQuizMasterNext->pluginHelper->get_quiz_setting('theme_settings_' . $theme_name);
     ?>    
     <div class="wrap">
         <h1 style="margin-bottom: 10px;">
-            <?php            	
-            $quiz_name = $wpdb->get_var( $wpdb->prepare( "SELECT quiz_name FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id=%d LIMIT 1", $quiz_id ) );
+            <?php
+            $quiz_name = $wpdb->get_var($wpdb->prepare("SELECT quiz_name FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id=%d LIMIT 1", $quiz_id));
             echo $quiz_name;
             ?>            
-            <a href="<?php echo admin_url( 'admin.php?page=mlw_quiz_options&quiz_id=' ) . $quiz_id . '&tab=style'  ?>" class="edit-quiz-name button button-primary"><?php _e('Back to themes', 'quiz-master-next'); ?></a>
+            <a href="<?php echo admin_url('admin.php?page=mlw_quiz_options&quiz_id=') . $quiz_id . '&tab=style' ?>" class="edit-quiz-name button button-primary"><?php _e('Back to themes', 'quiz-master-next'); ?></a>
         </h1>
         <form action="" method="post">
-            <?php wp_nonce_field( 'save_theme_settings','save_theme_settings_nonce' ); ?>
+            <?php wp_nonce_field('save_theme_settings', 'save_theme_settings_nonce'); ?>
             <table class="form-table" style="width: 100%;">
                 <?php
                 $theme_settings = array();
-                $theme_settings = apply_filters( 'qsm_theme_settings', $theme_settings, $quiz_id );
-                if( $theme_settings ){
-                    foreach( $theme_settings as $key => $theme_val ){
-                        $setting_val = isset( $get_theme_settings[$theme_val['id']] ) ? $get_theme_settings[$theme_val['id']] : $theme_val['default'];
+                $theme_settings = apply_filters('qsm_theme_settings', $theme_settings, $quiz_id);
+                if ($theme_settings) {
+                    foreach ($theme_settings as $key => $theme_val) {
+                        $setting_val = isset($get_theme_settings[$theme_val['id']]) ? $get_theme_settings[$theme_val['id']] : $theme_val['default'];
                         ?>
                         <tr valign="top">
                             <th scope="row" class="qsm-opt-tr">
@@ -364,30 +405,32 @@ function qsm_display_theme_settings(){
                                 <input name="<?php echo $theme_val['id']; ?>" type="text" value="<?php echo $setting_val; ?>" data-default-color="<?php echo $setting_val; ?>" class="my-color-field" />
                             </td>
                         </tr>
-                    <?php                    
+                        <?php
                     }
-                } else { ?>
+                } else {
+                    ?>
                     <tr>
                         <td colspan="2">
                             <?php _e('No settings found', 'quiz-master-next'); ?>
                         </td>
                     </tr>
-                <?php                
+                    <?php
                 }
                 ?>
             </table>
             <button class="button-primary"><?php _e('Save Changes', 'quiz-master-next'); ?></button>
         </form>
     </div>
-<?php
+    <?php
 }
 
 add_action('init', 'qsm_include_admin_theme_function');
-function qsm_include_admin_theme_function(){    
+
+function qsm_include_admin_theme_function() {
     global $mlwQuizMasterNext;
-    $saved_quiz_theme = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');    
+    $saved_quiz_theme = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');
     $folder_name = QSM_THEME_PATH . $saved_quiz_theme . '/';
-    if( file_exists( $folder_name . 'admin_functions.php' ) ){
+    if (file_exists($folder_name . 'admin_functions.php')) {
         include $folder_name . 'admin_functions.php';
     }
 }
