@@ -63,241 +63,277 @@ function qsm_options_styling_tab_content() {
             jQuery("#mlw_qmn_theme_block_" + theme).toggleClass("mlw_qmn_themeBlockActive");
 
         }
-    </script>
-    <form action='' method='post' name='quiz_style_form'>
-        <input type='hidden' name='save_style_options' value='confirmation' />
-        <input type='hidden' name='style_quiz_id' value='<?php echo esc_attr($quiz_id); ?>' />
-        <input type='hidden' name='save_quiz_theme' id='save_quiz_theme' value='<?php echo esc_attr($mlw_quiz_options->theme_selected); ?>' />
-        <h3 style="display: none;"><?php _e('Quiz Styles', 'quiz-master-next'); ?></h3>
-        <p><?php _e('Choose your style:', 'quiz-master-next'); ?></p>
-        <style>
-            div.mlw_qmn_themeBlockActive {
-                background-color: yellow;
-            }
-        </style>
-        <div class="qsm-styles">
-            <?php
-            foreach ($registered_templates as $slug => $template) {
-                ?>
-                <div onclick="mlw_qmn_theme('<?php echo $slug; ?>');" id="mlw_qmn_theme_block_<?php echo $slug; ?>" class="qsm-info-widget <?php
-                if ($mlw_quiz_options->theme_selected == $slug) {
-                    echo 'mlw_qmn_themeBlockActive';
-                }
-                ?>"><?php echo $template["name"]; ?></div>
-                     <?php
-                 }
-                 ?>
-            <div onclick="mlw_qmn_theme('default');" id="mlw_qmn_theme_block_default" class="qsm-info-widget <?php
-            if ($mlw_quiz_options->theme_selected == 'default') {
-                echo 'mlw_qmn_themeBlockActive';
-            }
-            ?>"><?php _e('Custom', 'quiz-master-next'); ?></div>
-            <script>
-                mlw_qmn_theme('<?php echo $mlw_quiz_options->theme_selected; ?>');
-            </script>
-        </div>
-        <button id="save_styles_button" class="button-primary"><?php _e('Save Quiz Style', 'quiz-master-next'); ?></button>
-        <hr />
-        <h3><?php _e('Custom Style CSS', 'quiz-master-next'); ?></h3>
-        <p><?php _e('For help and guidance along with a list of different classes used in this plugin, please visit the following link:', 'quiz-master-next'); ?>
-            <a target="_blank" href="https://quizandsurveymaster.com/docs/advanced-topics/editing-design-styles-css/">CSS in QSM</a></p>
-        <table class="form-table">
-            <tr>
-                <td><textarea style="width: 100%; height: 700px;" id="quiz_css" name="quiz_css"><?php echo $mlw_quiz_options->quiz_stye; ?></textarea></td>
-            </tr>
-        </table>
-        <?php wp_nonce_field('qsm_style_tab_nonce_action', 'qsm_style_tab_nonce'); ?>
-        <button id="save_styles_button" class="button-primary"><?php _e('Save Quiz Style', 'quiz-master-next'); ?></button>
-    </form>
-    <?php
-    if (isset($_POST["quiz_theme_upload_nouce"]) && wp_verify_nonce($_POST['quiz_theme_upload_nouce'], 'quiz_theme_upload')) {
-        $quiz_id = $_GET['quiz_id'];
-        $file_name = sanitize_file_name($_FILES["themezip"]["name"]);
-        $name = explode('.', $file_name);
-        $validate_file = wp_check_filetype($file_name);
-        $mimes = array('application/zip', 'application/x-gzip');
-        if (isset($validate_file['type']) && in_array($validate_file['type'], $mimes)) {
-            $upload_dir = wp_upload_dir()['basedir'] . '/qsm_themes/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0700);
-            }
-            WP_Filesystem();
-            $theme = $_FILES['themezip']['tmp_name'];
-            $unzip_file = unzip_file($theme, $upload_dir);
-            if ($unzip_file) {
-                $scan = scandir($upload_dir . $name[0]);
-                if (in_array('style.css', $scan) && in_array('functions.php', $scan)) {
-                    $mlwQuizMasterNext->alertManager->newAlert(__('The theme has been uploaded successfully.', 'quiz-master-next'), 'success');
-                    $mlwQuizMasterNext->audit_manager->new_audit("New theme have been uploaded For Quiz Number $quiz_id");
-                } else {
-                    $path = $upload_dir . $name[0];
-                    array_map('unlink', glob("$path/*.*"));
-                    rmdir($path);
-                    $mlwQuizMasterNext->alertManager->newAlert(__('Error occured when trying to upload the theme. style.css and functions.php is missing.', 'quiz-master-next'), 'error');
-                    $mlwQuizMasterNext->log_manager->add('Error uploading themes', 'Style.css and functions.php is missing: ' . $quiz_id, 0, 'error');
-                }
-            } else {
-                $mlwQuizMasterNext->alertManager->newAlert(__('Error occured when trying to upload the theme. Please try again.', 'quiz-master-next'), 'error');
-                $mlwQuizMasterNext->log_manager->add('Error uploading themes', 'Quiz ID: ' . $quiz_id, 0, 'error');
-            }
-        }
-    }
-    //Include required custom js and css    
-    wp_enqueue_script('micromodal_script', plugins_url('../../js/micromodal.min.js', __FILE__));
-    wp_enqueue_script('qsm_theme_color_js', plugins_url('../../js/qsm-theme-color.js', __FILE__), array('jquery', 'wp-color-picker', 'micromodal_script'), $mlwQuizMasterNext->version);
-    wp_enqueue_style('wp-color-picker');
-    wp_enqueue_style('qsm_admin_style', plugins_url('../../css/qsm-admin.css', __FILE__));
-    ?>
-    <script type="text/javascript">
-        jQuery(document).ready(function () {
-            jQuery(document).on('click', '.qsm-activate-theme', function () {
-                jQuery(this).parents('.theme-wrapper').find('input[name=quiz_new_theme]').prop("checked", true);
+        jQuery(document).ready(function(){
+            jQuery('.quiz_style_tab').click(function(e){
+                e.preventDefault();
+                var current_id = jQuery(this).attr('data-id');            
+                jQuery('.quiz_style_tab').removeClass('current');
+                jQuery(this).addClass('current');
+                jQuery('.quiz_style_tab_content').hide();
+                jQuery('#' + current_id ).show();
             });
-        });
-    </script>    
-    <h2><?php _e('Upload Theme', 'quiz-master-next'); ?></h2>
-    <form method="post" enctype="multipart/form-data" class="wp-upload-form" action="">
-        <?php wp_nonce_field('quiz_theme_upload', 'quiz_theme_upload_nouce'); ?>
-        <label class="screen-reader-text" for="themezip"><?php _e('Theme zip file', 'quiz-master-next'); ?></label>
-        <input type="file" id="themezip" name="themezip" accept=".zip" required="">
-        <input type="submit" class="button" value="<?php _e('Install Now', 'quiz-master-next'); ?>">
-    </form>    
-    <?php
-    if (isset($_POST["quiz_theme_integration_nouce"]) && wp_verify_nonce($_POST['quiz_theme_integration_nouce'], 'quiz_theme_integration')) {
-        $quiz_id = $_GET['quiz_id'];
-        $mlwQuizMasterNext->quiz_settings->update_setting('quiz_new_theme', sanitize_text_field($_POST['quiz_new_theme']));
-        $mlwQuizMasterNext->alertManager->newAlert(__('The theme is applied successfully.', 'quiz-master-next'), 'success');
-        $mlwQuizMasterNext->audit_manager->new_audit("Styles Have Been Saved For Quiz Number $quiz_id");
-    }
-    //Read all the themes
-    $saved_quiz_theme = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');
-    if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {
-        unset($_POST['save_theme_settings_nonce']);
-        unset($_POST['_wp_http_referer']);
-        $settings_array = array();
-        if ($_POST) {
-            foreach ($_POST as $key => $single_post) {
-                $sanitized_value = sanitize_text_field(stripslashes($single_post));
-                $settings_array[$key] = $sanitized_value;
-            }
-        }
-        $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('theme_settings_' . $saved_quiz_theme, $settings_array);
-        $mlwQuizMasterNext->alertManager->newAlert(__('The theme settings saved successfully.', 'quiz-master-next'), 'success');
-        $mlwQuizMasterNext->audit_manager->new_audit("Theme settings Have Been Saved For Quiz Number $quiz_id");
-    }
-    $folder_name = QSM_THEME_PATH;
-    $folder_slug = QSM_THEME_SLUG;
-    $theme_folders = array();
-    if( is_dir( $folder_name ) ) {
-        $theme_folders = scandir($folder_name);    
-    }
-    $theme_folders = apply_filters('qsm_theme_list', $theme_folders);
-    $post_permalink = $edit_link = '';
-    // Get quiz post based on quiz id
-    $args = array(
-        'posts_per_page' => 1,
-        'post_type' => 'qsm_quiz',
-        'meta_query' => array(
-            array(
-                'key' => 'quiz_id',
-                'value' => $quiz_id,
-                'compare' => '=',
-            ),
-        ),
-    );
-    $the_query = new WP_Query($args);
-    if ($the_query->have_posts()) {
-        while ($the_query->have_posts()) {
-            $the_query->the_post();
-            $post_permalink = get_the_permalink(get_the_ID());
-            $edit_link = get_edit_post_link(get_the_ID());
-        }
-        /* Restore original Post Data */
-        wp_reset_postdata();
-    }
-    ?>
-    <div class="wp-filter hide-if-no-js">
-        <ul class="filter-links">
-            <li>
-                <a href="#" class="current"><?php _e('My Themes', 'quiz-master-next'); ?></a>
-            </li>
-            <li>
-                <a href="#"><?php _e('Premium Themes', 'quiz-master-next'); ?></a>
-            </li>
-            <?php do_action('qsm_add_filter_menu'); ?>
+        });        
+    </script>
+    <div class="qsm-sub-tab-menu" style="display: inline-block;width: 100%;">
+        <ul class="subsubsub">
+            <li><a href="#" data-id="qsm_themes" class="current quiz_style_tab"><?php _e('Themes', 'quiz-master-next'); ?></a> | </li>
+            <li><a href="#" data-id="custom_css" class="quiz_style_tab"><?php _e('Custom CSS', 'quiz-master-next'); ?></a> | </li>
+            <li><a href="#" data-id="legacy" class="quiz_style_tab"><?php _e('Legacy', 'quiz-master-next'); ?></a>  </li>
         </ul>
-    </div>
-    <?php
-    echo '<form method="POST" action="">';
-    wp_nonce_field('quiz_theme_integration', 'quiz_theme_integration_nouce');
-    ?>
-    <div class="theme-browser rendered">
-        <div class="themes wp-clearfix">
-            <div class="theme-wrapper theme <?php
-            if ($saved_quiz_theme == '') {
-                echo 'active';
+    </div>    
+    <div id="qsm_themes" class="quiz_style_tab_content">
+        <?php
+        if (isset($_POST["quiz_theme_upload_nouce"]) && wp_verify_nonce($_POST['quiz_theme_upload_nouce'], 'quiz_theme_upload')) {
+            $quiz_id = $_GET['quiz_id'];
+            $file_name = sanitize_file_name($_FILES["themezip"]["name"]);
+            $name = explode('.', $file_name);
+            $validate_file = wp_check_filetype($file_name);
+            $mimes = array('application/zip', 'application/x-gzip');
+            if (isset($validate_file['type']) && in_array($validate_file['type'], $mimes)) {
+                $upload_dir = wp_upload_dir()['basedir'] . '/qsm_themes/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0700);
+                }
+                WP_Filesystem();
+                $theme = $_FILES['themezip']['tmp_name'];
+                $unzip_file = unzip_file($theme, $upload_dir);
+                if ($unzip_file) {
+                    $scan = scandir($upload_dir . $name[0]);
+                    if (in_array('style.css', $scan) && in_array('functions.php', $scan)) {
+                        $mlwQuizMasterNext->alertManager->newAlert(__('The theme has been uploaded successfully.', 'quiz-master-next'), 'success');
+                        $mlwQuizMasterNext->audit_manager->new_audit("New theme have been uploaded For Quiz Number $quiz_id");
+                    } else {
+                        $path = $upload_dir . $name[0];
+                        array_map('unlink', glob("$path/*.*"));
+                        rmdir($path);
+                        $mlwQuizMasterNext->alertManager->newAlert(__('Error occured when trying to upload the theme. style.css and functions.php is missing.', 'quiz-master-next'), 'error');
+                        $mlwQuizMasterNext->log_manager->add('Error uploading themes', 'Style.css and functions.php is missing: ' . $quiz_id, 0, 'error');
+                    }
+                } else {
+                    $mlwQuizMasterNext->alertManager->newAlert(__('Error occured when trying to upload the theme. Please try again.', 'quiz-master-next'), 'error');
+                    $mlwQuizMasterNext->log_manager->add('Error uploading themes', 'Quiz ID: ' . $quiz_id, 0, 'error');
+                }
             }
-            ?>">
-                <input style="display: none" type="radio" name="quiz_new_theme" value="default" <?php checked($saved_quiz_theme, 'default', true); ?>>
-                <div class="theme-screenshot">
-                    <img src="<?php echo QSM_PLUGIN_URL . '/assets/screenshot-default-theme.png'; ?>">
-                </div>                  
-                <div class="theme-id-container">
-                    <h2 class="theme-name" id="emarket-name"><?php echo __('Default Theme', 'quiz-master-next'); ?></h2>
-                    <div class="theme-actions">
-                        <?php if ($saved_quiz_theme != 'default') { ?>
-                            <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
-                        <?php } else { ?>
-                            <a target="_blank" class="button button-primary qsm-customize-color-settings" href="<?php echo $post_permalink; ?>"><?php _e('Quiz Preview', 'quiz-master-next') ?></a>
-                        <?php } ?>
+        }
+        //Include required custom js and css    
+        wp_enqueue_script('micromodal_script', plugins_url('../../js/micromodal.min.js', __FILE__));
+        wp_enqueue_script('qsm_theme_color_js', plugins_url('../../js/qsm-theme-color.js', __FILE__), array('jquery', 'wp-color-picker', 'micromodal_script'), $mlwQuizMasterNext->version);
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_style('qsm_admin_style', plugins_url('../../css/qsm-admin.css', __FILE__));
+        ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery(document).on('click', '.qsm-activate-theme', function () {
+                    jQuery(this).parents('.theme-wrapper').find('input[name=quiz_new_theme]').prop("checked", true);
+                });
+                jQuery(document).on('click', '.upload-view-toggle', function () {
+                    if( jQuery('.upload-theme').is(':visible') ){
+                        jQuery('.upload-theme').hide();
+                    } else {
+                        jQuery('.upload-theme').show();
+                    }
+                });
+            });
+        </script>    
+        <h2 class="wp-heading-inline"><?php _e('Add Themes', 'quiz-master-next'); ?></h2>
+        <button type="button" class="upload-view-toggle page-title-action hide-if-no-js" aria-expanded="false"><?php _e('Upload Theme', 'quiz-master-next'); ?></button>
+        <br/>
+        <div class="upload-theme">
+            <p class="install-help">
+                <?php _e('If you have a theme in a .zip format, you may install it by uploading it here.', 'quiz-master-next'); ?>
+            </p>
+            <form method="post" enctype="multipart/form-data" class="wp-upload-form" action="">
+                <?php wp_nonce_field('quiz_theme_upload', 'quiz_theme_upload_nouce'); ?>
+                <label class="screen-reader-text" for="themezip"><?php _e('Theme zip file', 'quiz-master-next'); ?></label>
+                <input type="file" id="themezip" name="themezip" accept=".zip" required="">
+                <input type="submit" class="button" value="<?php _e('Install Now', 'quiz-master-next'); ?>">
+            </form>    
+        </div>        
+        <?php
+        if (isset($_POST["quiz_theme_integration_nouce"]) && wp_verify_nonce($_POST['quiz_theme_integration_nouce'], 'quiz_theme_integration')) {
+            $quiz_id = $_GET['quiz_id'];
+            $mlwQuizMasterNext->quiz_settings->update_setting('quiz_new_theme', sanitize_text_field($_POST['quiz_new_theme']));
+            $mlwQuizMasterNext->alertManager->newAlert(__('The theme is applied successfully.', 'quiz-master-next'), 'success');
+            $mlwQuizMasterNext->audit_manager->new_audit("Styles Have Been Saved For Quiz Number $quiz_id");
+        }
+        //Read all the themes
+        $saved_quiz_theme = $mlwQuizMasterNext->quiz_settings->get_setting('quiz_new_theme');
+        if (isset($_POST["save_theme_settings_nonce"]) && wp_verify_nonce($_POST['save_theme_settings_nonce'], 'save_theme_settings')) {
+            unset($_POST['save_theme_settings_nonce']);
+            unset($_POST['_wp_http_referer']);
+            $settings_array = array();
+            if ($_POST) {
+                foreach ($_POST as $key => $single_post) {
+                    $sanitized_value = sanitize_text_field(stripslashes($single_post));
+                    $settings_array[$key] = $sanitized_value;
+                }
+            }
+            $results = $mlwQuizMasterNext->pluginHelper->update_quiz_setting('theme_settings_' . $saved_quiz_theme, $settings_array);
+            $mlwQuizMasterNext->alertManager->newAlert(__('The theme settings saved successfully.', 'quiz-master-next'), 'success');
+            $mlwQuizMasterNext->audit_manager->new_audit("Theme settings Have Been Saved For Quiz Number $quiz_id");
+        }
+        $folder_name = QSM_THEME_PATH;
+        $folder_slug = QSM_THEME_SLUG;
+        $theme_folders = array();
+        if (is_dir($folder_name)) {
+            $theme_folders = scandir($folder_name);
+        }
+        $theme_folders = apply_filters('qsm_theme_list', $theme_folders);
+        $post_permalink = $edit_link = '';
+        // Get quiz post based on quiz id
+        $args = array(
+            'posts_per_page' => 1,
+            'post_type' => 'qsm_quiz',
+            'meta_query' => array(
+                array(
+                    'key' => 'quiz_id',
+                    'value' => $quiz_id,
+                    'compare' => '=',
+                ),
+            ),
+        );
+        $the_query = new WP_Query($args);
+        if ($the_query->have_posts()) {
+            while ($the_query->have_posts()) {
+                $the_query->the_post();
+                $post_permalink = get_the_permalink(get_the_ID());
+                $edit_link = get_edit_post_link(get_the_ID());
+            }
+            /* Restore original Post Data */
+            wp_reset_postdata();
+        }
+        ?>
+        <div class="wp-filter hide-if-no-js">
+            <ul class="filter-links">
+                <li>
+                    <a href="#" class="current"><?php _e('My Themes', 'quiz-master-next'); ?></a>
+                </li>
+                <li>
+                    <a href="#"><?php _e('Premium Themes', 'quiz-master-next'); ?></a>
+                </li>
+                <?php do_action('qsm_add_filter_menu'); ?>
+            </ul>
+        </div>
+        <?php
+        echo '<form method="POST" action="">';
+        wp_nonce_field('quiz_theme_integration', 'quiz_theme_integration_nouce');
+        ?>
+        <div class="theme-browser rendered">
+            <div class="themes wp-clearfix">
+                <div class="theme-wrapper theme <?php
+                if ($saved_quiz_theme == '') {
+                    echo 'active';
+                }
+                ?>">
+                    <input style="display: none" type="radio" name="quiz_new_theme" value="default" <?php checked($saved_quiz_theme, 'default', true); ?>>
+                    <div class="theme-screenshot">
+                        <img src="<?php echo QSM_PLUGIN_URL . '/assets/screenshot-default-theme.png'; ?>">
+                    </div>                  
+                    <div class="theme-id-container">
+                        <h2 class="theme-name" id="emarket-name"><?php echo __('Default Theme', 'quiz-master-next'); ?></h2>
+                        <div class="theme-actions">
+                            <?php if ($saved_quiz_theme != 'default') { ?>
+                                <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                            <?php } else { ?>
+                                <a target="_blank" class="button button-primary qsm-customize-color-settings" href="<?php echo $post_permalink; ?>"><?php _e('Quiz Preview', 'quiz-master-next') ?></a>
+                            <?php } ?>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <?php do_action('qsm_add_after_default_theme'); ?>
-            <?php
-            if ($theme_folders) {
-                foreach ($theme_folders as $key => $theme_name) {
-                    if ($theme_name !== '.' && $theme_name !== '..') {
-                        if (file_exists($folder_name . $theme_name . '/style.css')) {
-                            $theme_folder = $folder_name . $theme_name;
-                            $theme_style_file = $theme_folder . '/style.css';
-                            $read_style_data = get_file_data($theme_style_file, array('Name' => 'Theme Name'));
-                            ?>
-                            <div class="theme-wrapper theme <?php
-                            if ($saved_quiz_theme == $theme_name) {
-                                echo 'active';
-                            }
-                            ?>">
-                                <input style="display: none" type="radio" name="quiz_new_theme" value="<?php echo esc_attr($theme_name); ?>" <?php checked($saved_quiz_theme, $theme_name, true); ?>>
-                                <div class="theme-screenshot">
-                                    <img src="<?php echo $folder_slug . $theme_name . '/screenshot.png' ?>" />
-                                </div>
-                                <span class="more-details" style="display: none;"><?php _e('Templates', 'quiz-master-next'); ?></span>
-                                <div class="theme-id-container">
-                                    <h2 class="theme-name" id="emarket-name"><?php echo $read_style_data['Name']; ?></h2>
-                                    <div class="theme-actions">
-                                        <?php if ($saved_quiz_theme != $theme_name) { ?>
-                                            <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
-                                            <a class="button button-primary load-customize hide-if-no-customize" href="#"><?php _e('Live Preview', 'quiz-master-next') ?></a>
-                                        <?php } ?>
-                                        <?php if ($saved_quiz_theme == $theme_name) { ?>
-                                            <a class="button button-primary qsm-customize-color-settings" href="#"><?php _e('Customize', 'quiz-master-next') ?></a>
-                                        <?php } ?>    
+                <?php do_action('qsm_add_after_default_theme'); ?>
+                <?php
+                if ($theme_folders) {
+                    foreach ($theme_folders as $key => $theme_name) {
+                        if ($theme_name !== '.' && $theme_name !== '..') {
+                            if (file_exists($folder_name . $theme_name . '/style.css')) {
+                                $theme_folder = $folder_name . $theme_name;
+                                $theme_style_file = $theme_folder . '/style.css';
+                                $read_style_data = get_file_data($theme_style_file, array('Name' => 'Theme Name'));
+                                ?>
+                                <div class="theme-wrapper theme <?php
+                                if ($saved_quiz_theme == $theme_name) {
+                                    echo 'active';
+                                }
+                                ?>">
+                                    <input style="display: none" type="radio" name="quiz_new_theme" value="<?php echo esc_attr($theme_name); ?>" <?php checked($saved_quiz_theme, $theme_name, true); ?>>
+                                    <div class="theme-screenshot">
+                                        <img src="<?php echo $folder_slug . $theme_name . '/screenshot.png' ?>" />
+                                    </div>
+                                    <span class="more-details" style="display: none;"><?php _e('Templates', 'quiz-master-next'); ?></span>
+                                    <div class="theme-id-container">
+                                        <h2 class="theme-name" id="emarket-name"><?php echo $read_style_data['Name']; ?></h2>
+                                        <div class="theme-actions">
+                                            <?php if ($saved_quiz_theme != $theme_name) { ?>
+                                                <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                                                <a class="button button-primary load-customize hide-if-no-customize" href="#"><?php _e('Live Preview', 'quiz-master-next') ?></a>
+                                            <?php } ?>
+                                            <?php if ($saved_quiz_theme == $theme_name) { ?>
+                                                <a class="button button-primary qsm-customize-color-settings" href="#"><?php _e('Customize', 'quiz-master-next') ?></a>
+                                            <?php } ?>    
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <?php
-                            do_action('qsm_add_after_themes');
+                                <?php
+                                do_action('qsm_add_after_themes');
+                            }
                         }
                     }
                 }
-            }
-            ?>
+                ?>
+            </div>
         </div>
+        <?php
+        echo '</form>';
+        ?>
     </div>
-    <?php
-    echo '</form>';
-    ?>
+    <form action='' method='post' name='quiz_style_form'>
+        <div id="legacy" class="quiz_style_tab_content" style="display: none;">
+            <input type='hidden' name='save_style_options' value='confirmation' />
+            <input type='hidden' name='style_quiz_id' value='<?php echo esc_attr($quiz_id); ?>' />
+            <input type='hidden' name='save_quiz_theme' id='save_quiz_theme' value='<?php echo esc_attr($mlw_quiz_options->theme_selected); ?>' />
+            <h3 style="display: none;"><?php _e('Quiz Styles', 'quiz-master-next'); ?></h3>
+            <p><?php _e('Choose your style:', 'quiz-master-next'); ?></p>
+            <style>
+                div.mlw_qmn_themeBlockActive {
+                    background-color: yellow;
+                }
+            </style>
+            <div class="qsm-styles">
+                <?php
+                foreach ($registered_templates as $slug => $template) {
+                    ?>
+                    <div onclick="mlw_qmn_theme('<?php echo $slug; ?>');" id="mlw_qmn_theme_block_<?php echo $slug; ?>" class="qsm-info-widget <?php
+                    if ($mlw_quiz_options->theme_selected == $slug) {
+                        echo 'mlw_qmn_themeBlockActive';
+                    }
+                    ?>"><?php echo $template["name"]; ?></div>
+                         <?php
+                     }
+                     ?>
+                <div onclick="mlw_qmn_theme('default');" id="mlw_qmn_theme_block_default" class="qsm-info-widget <?php
+                if ($mlw_quiz_options->theme_selected == 'default') {
+                    echo 'mlw_qmn_themeBlockActive';
+                }
+                ?>"><?php _e('Custom', 'quiz-master-next'); ?></div>
+                <script>
+                    mlw_qmn_theme('<?php echo $mlw_quiz_options->theme_selected; ?>');
+                </script>
+            </div>
+            <button id="save_styles_button" class="button-primary"><?php _e('Save Quiz Style', 'quiz-master-next'); ?></button>
+        </div>
+        <div id="custom_css" class="quiz_style_tab_content" style="display: none;">
+            <h3><?php _e('Custom Style CSS', 'quiz-master-next'); ?></h3>
+            <p><?php _e('For help and guidance along with a list of different classes used in this plugin, please visit the following link:', 'quiz-master-next'); ?>
+                <a target="_blank" href="https://quizandsurveymaster.com/docs/advanced-topics/editing-design-styles-css/">CSS in QSM</a></p>
+            <table class="form-table">
+                <tr>
+                    <td><textarea style="width: 100%; height: 700px;" id="quiz_css" name="quiz_css"><?php echo $mlw_quiz_options->quiz_stye; ?></textarea></td>
+                </tr>
+            </table>
+            <?php wp_nonce_field('qsm_style_tab_nonce_action', 'qsm_style_tab_nonce'); ?>
+            <button id="save_styles_button" class="button-primary"><?php _e('Save Quiz Style', 'quiz-master-next'); ?></button>
+        </div>
+    </form>    
     <div class="qsm-popup qsm-popup-slide qsm-theme-color-settings" id="qsm-theme-color-settings" aria-hidden="true">
         <div class="qsm-popup__overlay" tabindex="-1" data-micromodal-close>
             <div class="qsm-popup__container" role="dialog" aria-modal="true" aria-labelledby="modal-2-title">
