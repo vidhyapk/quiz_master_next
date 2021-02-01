@@ -204,6 +204,15 @@ var QSMQuizzesSurveys;
         var copyText = document.getElementById("sc-shortcode-model-text-link");
         copyText.select();        
         document.execCommand("copy");        
-    });    
+    });
+    //Show the menus on widget click
+    $(document).on('click', '.qsm-new_menu_tab_items li', function(e){
+        $('.qsm-new_menu_tab_items li').removeClass('active');
+        $(this).addClass('active');
+        $('.qsm-new-menu-elements').hide();
+        var id = $(this).attr('data-show');
+        $('#' + id).show();
+        e.preventDefault();
+    });
   });
 }(jQuery));

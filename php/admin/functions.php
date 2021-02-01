@@ -342,7 +342,9 @@ function qsm_display_question_option($key, $single_option){
  * @since 7.0
  * New quiz popup
  */
-function qsm_create_new_quiz_wizard(){ ?>
+function qsm_create_new_quiz_wizard(){ 
+    global $mlwQuizMasterNext;
+    ?>
     <div class="qsm-popup qsm-popup-slide" id="model-wizard" aria-hidden="true">
         <div class="qsm-popup__overlay" tabindex="-1" data-micromodal-close>
             <div class="qsm-popup__container" role="dialog" aria-modal="true" aria-labelledby="modal-2-title">
@@ -352,7 +354,7 @@ function qsm_create_new_quiz_wizard(){ ?>
                 </header>
                 <main class="qsm-popup__content" id="modal-2-content">
                     <ul class="qsm-new_menu_tab_items">
-                        <li class="qsm-new_menu_tab_li">
+                        <li class="qsm-new_menu_tab_li active" data-show="quiz_settings">
                             <a href="#">
                                 <div class="nav-item-label">
                                     <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
@@ -363,31 +365,119 @@ function qsm_create_new_quiz_wizard(){ ?>
                                 </div>
                             </a>                            
                         </li>
-                        <li>
+                        <li class="qsm-new_menu_tab_li" data-show="select_themes">
                             <a href="#">
-                                <div class="nav-item-label">
-                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                <div class="nav-item-label">                                    
+                                    <span class="nav-item-label-icon dashicons dashicons-layout"></span>
                                     <div class="nav-item-label-content">
-                                        <?php _e('Select Themes', 'quiz-master-next'); ?>
+                                        <h4><?php _e('Select Themes', 'quiz-master-next'); ?></h4>
                                         <span><?php _e('Use pre-made theme to speed up the things.', 'quiz-master-next'); ?></span>
                                     </div>
                                 </div>
                             </a>
                         </li>
-                        <li>
+                        <li class="qsm-new_menu_tab_li" data-show="addons_list">
                             <a href="#">
-                                <div class="nav-item-label">
-                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                <div class="nav-item-label">                                    
+                                    <span class="nav-item-label-icon dashicons dashicons-welcome-add-page"></span>
                                     <div class="nav-item-label-content">
-                                        <?php _e('Addons', 'quiz-master-next'); ?>
+                                        <h4><?php _e('Addons', 'quiz-master-next'); ?></h4>
                                         <span><?php _e('Use 40+ addons to customize the quiz.', 'quiz-master-next'); ?></span>
                                     </div>
                                 </div>
                             </a>
                         </li>
-                    </ul>   
+                    </ul>
+                    <div id="quiz_settings" class="qsm-new-menu-elements">
+                        <div class="input-group">
+                            <label for="rmp-menu-name"><?php _e('Quiz Name', 'quiz-master-next'); ?></label>
+                            <input type="text" class="quiz_name" name="quiz_name" value="" required="">
+                        </div>
+                        <?php
+                        $all_settings          = $mlwQuizMasterNext->quiz_settings->load_setting_fields( 'quiz_options' );
+                        $quiz_setting_option = array(
+                            'form_type' => array(
+                                'option_name' => 'Form Type',
+                                'value' => 0
+                            ),
+                            'system' => array(
+                                'option_name' => 'Graded System',
+                                'value' => 0
+                            ),
+                            'require_log_in' => array(
+                                'option_name' => 'Require User Login',
+                                'value' => 0
+                            )
+                        );
+                        $quiz_setting_option = apply_filters('qsm_quiz_wizard_settings_option', $quiz_setting_option);
+                        if( $quiz_setting_option ){
+                            foreach ( $quiz_setting_option as $key => $single_setting ) {
+                                $key              = array_search( $key, array_column( $all_settings, 'id' ) );
+                                $field            = $all_settings[ $key ];
+                                $field['label']   = $single_setting['option_name'];
+                                $field['default'] = $single_setting['value'];
+                                echo '<div class="input-group">';
+                                QSM_Fields::generate_field( $field, $single_setting['value'] );
+                                echo '</div>';
+                            }
+                        } else {
+                            _e('No settings found!', 'quiz-master-next');
+                        }
+                        ?>
+                    </div>
+                    <div id="select_themes" class="qsm-new-menu-elements" style="display: none;">                        
+                        <div class="theme-browser rendered">
+                            <div class="themes wp-clearfix">
+                                <?php                        
+                                qsm_get_installed_theme( 'default' );
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="addons_list" class="qsm-new-menu-elements" style="display: none;">
+                        <?php
+                        $addons = array(
+                            array(
+                                'name' => 'Reporting And Analysis',
+                                'link' => 'https://quizandsurveymaster.com/downloads/results-analysis/',
+                                'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Reporting-And-Analysis.jpg',
+                                'attribute' => 'recommended'
+                            ),
+                            array(
+                                'name' => 'Export & Import',
+                                'link' => 'https://quizandsurveymaster.com/downloads/export-import/',
+                                'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Export-Import.jpg',
+                                'attribute' => 'recommended'
+                            )
+                        );
+                        $addons = apply_filters('qsm_addon_list_wizard', $addons);
+                        $recommended_addon_str = '';
+                        $recommended_addon_str .= '<ul>';
+                        if( $addons ){
+                            foreach ( $addons as $single_addon ) {
+                                $recommended_addon_str .= '<li>';
+                                if ( isset( $single_addon['attribute'] ) && $single_addon['attribute'] != '' ) {
+                                        $attr                   = $single_addon['attribute'];
+                                        $recommended_addon_str .= '<span class="ra-attr qra-att-' . $attr . '">' . $attr . '</span>';
+                                }
+                                $link                   = isset( $single_addon['link'] ) ? $single_addon['link'] : '';
+                                $recommended_addon_str .= '<a target="_blank" href="' . $link . '">';
+                                if ( isset( $single_addon['img'] ) && $single_addon['img'] != '' ) {
+                                        $img                    = $single_addon['img'];
+                                        $recommended_addon_str .= '<img src="' . $img . '"/>';
+                                }
+                                $recommended_addon_str .= '</a>';
+                                $recommended_addon_str .= '</li>';
+                            }
+                        } else {
+                            $recommended_addon_str .= 'No addons found!';
+                        }
+                        $recommended_addon_str .= '</ul>';
+                        echo $recommended_addon_str;
+                        ?>
+                    </div>
                 </main>
-                <main class="qsm-popup__content" id="modal-2-content">
+                <main class="qsm-popup__content" style="display: none;" id="modal-2-content">
                     <?php
                     $qsm_quiz_templates = array(
                         array(
@@ -694,3 +784,75 @@ function qsm_admin_page_access_func(){
     }
 }
 add_action('admin_page_access_denied', 'qsm_admin_page_access_func');
+
+function qsm_get_installed_theme( $saved_quiz_theme ){
+    $folder_name = QSM_THEME_PATH;
+    $folder_slug = QSM_THEME_SLUG;
+    $theme_folders = array();
+    if (is_dir($folder_name)) {
+        $theme_folders = scandir($folder_name);
+    }
+    $theme_folders = apply_filters('qsm_theme_list', $theme_folders);
+    ?>
+    <div class="theme-wrapper theme <?php
+    if ($saved_quiz_theme == '') {
+        echo 'active';
+    }
+    ?>">
+        <input style="display: none" type="radio" name="quiz_new_theme" value="default" <?php checked($saved_quiz_theme, 'default', true); ?>>
+        <div class="theme-screenshot">
+            <img src="<?php echo QSM_PLUGIN_URL . '/assets/screenshot-default-theme.png'; ?>">
+        </div>                  
+        <div class="theme-id-container">
+            <h2 class="theme-name" id="emarket-name"><?php echo __('Default Theme', 'quiz-master-next'); ?></h2>
+            <div class="theme-actions">
+                <?php if ($saved_quiz_theme != 'default') { ?>
+                    <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                <?php } else { ?>
+                    <a target="_blank" class="button button-primary qsm-customize-color-settings" href="<?php echo $post_permalink; ?>"><?php _e('Quiz Preview', 'quiz-master-next') ?></a>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+    <?php do_action('qsm_add_after_default_theme'); ?>
+    <?php
+    if ($theme_folders) {
+        foreach ($theme_folders as $key => $theme_name) {
+            if ($theme_name !== '.' && $theme_name !== '..') {
+                if (file_exists($folder_name . $theme_name . '/style.css')) {
+                    $theme_folder = $folder_name . $theme_name;
+                    $theme_style_file = $theme_folder . '/style.css';
+                    $read_style_data = get_file_data($theme_style_file, array('Name' => 'Theme Name'));
+                    ?>
+                    <div class="theme-wrapper theme <?php
+                    if ($saved_quiz_theme == $theme_name) {
+                        echo 'active';
+                    }
+                    ?>">
+                        <input style="display: none" type="radio" name="quiz_new_theme" value="<?php echo esc_attr($theme_name); ?>" <?php checked($saved_quiz_theme, $theme_name, true); ?>>
+                        <div class="theme-screenshot">
+                            <img src="<?php echo $folder_slug . $theme_name . '/screenshot.png' ?>" />
+                        </div>
+                        <span class="more-details" style="display: none;"><?php _e('Templates', 'quiz-master-next'); ?></span>
+                        <div class="theme-id-container">
+                            <h2 class="theme-name" id="emarket-name"><?php echo $read_style_data['Name']; ?></h2>
+                            <div class="theme-actions">
+                                <?php if ($saved_quiz_theme != $theme_name) { ?>
+                                    <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                                    <a class="button button-primary load-customize hide-if-no-customize" href="#"><?php _e('Live Preview', 'quiz-master-next') ?></a>
+                                <?php } ?>
+                                <?php if ($saved_quiz_theme == $theme_name) { ?>
+                                    <a class="button button-primary qsm-customize-color-settings" href="#"><?php _e('Customize', 'quiz-master-next') ?></a>
+                                <?php } ?>    
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                    do_action('qsm_add_after_themes');
+                }
+            }
+        }
+    }
+    ?>
+<?php
+}
