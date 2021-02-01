@@ -288,6 +288,7 @@ function qsm_options_styling_tab_content() {
     </div>
     <form action='' method='post' name='quiz_style_form'>
         <div id="legacy" class="quiz_style_tab_content" style="display: none;">
+            <p style="font-size: 18px;"><b><?php _e('Note: ', 'quiz-master-next'); ?> </b><?php _e('This option will be removed in future.','quiz-master-next'); ?></p>
             <input type='hidden' name='save_style_options' value='confirmation' />
             <input type='hidden' name='style_quiz_id' value='<?php echo esc_attr($quiz_id); ?>' />
             <input type='hidden' name='save_quiz_theme' id='save_quiz_theme' value='<?php echo esc_attr($mlw_quiz_options->theme_selected); ?>' />

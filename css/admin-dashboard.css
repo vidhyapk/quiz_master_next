@@ -430,6 +430,9 @@ div#quiz_settings_wrapper #timer_limit {
 h2.hndle.ui-sortable-handle {
     border-bottom: 1px solid #ccd0d4;
 }
+/**
+* New 
+*/
 @media screen and (min-width: 1200px){
     #quiz_settings_wrapper tr td fieldset > br{
         display: none;

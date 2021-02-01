@@ -351,6 +351,43 @@ function qsm_create_new_quiz_wizard(){ ?>
                     <a class="qsm-popup__close" aria-label="Close modal" data-micromodal-close></a>
                 </header>
                 <main class="qsm-popup__content" id="modal-2-content">
+                    <ul class="qsm-new_menu_tab_items">
+                        <li class="qsm-new_menu_tab_li">
+                            <a href="#">
+                                <div class="nav-item-label">
+                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                    <div class="nav-item-label-content">
+                                        <h4><?php _e('Quiz Setting', 'quiz-master-next'); ?></h4>
+                                        <span><?php _e('Fill quiz settings as per preferences', 'quiz-master-next'); ?></span>
+                                    </div>
+                                </div>
+                            </a>                            
+                        </li>
+                        <li>
+                            <a href="#">
+                                <div class="nav-item-label">
+                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                    <div class="nav-item-label-content">
+                                        <?php _e('Select Themes', 'quiz-master-next'); ?>
+                                        <span><?php _e('Use pre-made theme to speed up the things.', 'quiz-master-next'); ?></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <div class="nav-item-label">
+                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                    <div class="nav-item-label-content">
+                                        <?php _e('Addons', 'quiz-master-next'); ?>
+                                        <span><?php _e('Use 40+ addons to customize the quiz.', 'quiz-master-next'); ?></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>   
+                </main>
+                <main class="qsm-popup__content" id="modal-2-content">
                     <?php
                     $qsm_quiz_templates = array(
                         array(
