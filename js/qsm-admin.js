@@ -146,6 +146,15 @@ var QSMQuizzesSurveys;
             $( '.' + name + '_' + value ).show();
         }
     });
+    //Hide/show the wizard quiz options
+    $(document).on('change', '#quiz_settings select', function(){
+        var value = $(this).val();        
+        if( value == 0 ){
+            jQuery(this).closest('.input-group').next('.input-group').show();
+        } else {
+            jQuery(this).closest('.input-group').next('.input-group').hide();
+        }
+    });
     /*$( '#quiz_search' ).keyup( function() {
       QSMQuizzesSurveys.searchQuizzes( $( this ).val() );
     });*/

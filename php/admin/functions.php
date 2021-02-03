@@ -352,131 +352,134 @@ function qsm_create_new_quiz_wizard(){
                     <h2 class="qsm-popup__title" id="modal-2-title"><?php _e('Create New Quiz Or Survey', 'quiz-master-next'); ?></h2>
                     <a class="qsm-popup__close" aria-label="Close modal" data-micromodal-close></a>
                 </header>
-                <main class="qsm-popup__content" id="modal-2-content">
-                    <ul class="qsm-new_menu_tab_items">
-                        <li class="qsm-new_menu_tab_li active" data-show="quiz_settings">
-                            <a href="#">
-                                <div class="nav-item-label">
-                                    <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
-                                    <div class="nav-item-label-content">
-                                        <h4><?php _e('Quiz Setting', 'quiz-master-next'); ?></h4>
-                                        <span><?php _e('Fill quiz settings as per preferences', 'quiz-master-next'); ?></span>
+                <form action="" method="post" id="new-quiz-form">
+                    <?php wp_nonce_field('qsm_new_quiz', 'qsm_new_quiz_nonce'); ?>
+                    <main class="qsm-popup__content" id="modal-2-content">                    
+                        <ul class="qsm-new_menu_tab_items">
+                            <li class="qsm-new_menu_tab_li active" data-show="quiz_settings">
+                                <a href="#">
+                                    <div class="nav-item-label">
+                                        <span class="nav-item-label-icon dashicons dashicons-admin-generic "></span>
+                                        <div class="nav-item-label-content">
+                                            <h4><?php _e('Quiz Setting', 'quiz-master-next'); ?></h4>
+                                            <span><?php _e('Fill quiz settings as per preferences', 'quiz-master-next'); ?></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>                            
-                        </li>
-                        <li class="qsm-new_menu_tab_li" data-show="select_themes">
-                            <a href="#">
-                                <div class="nav-item-label">                                    
-                                    <span class="nav-item-label-icon dashicons dashicons-layout"></span>
-                                    <div class="nav-item-label-content">
-                                        <h4><?php _e('Select Themes', 'quiz-master-next'); ?></h4>
-                                        <span><?php _e('Use pre-made theme to speed up the things.', 'quiz-master-next'); ?></span>
+                                </a>                            
+                            </li>
+                            <li class="qsm-new_menu_tab_li" data-show="select_themes">
+                                <a href="#">
+                                    <div class="nav-item-label">                                    
+                                        <span class="nav-item-label-icon dashicons dashicons-layout"></span>
+                                        <div class="nav-item-label-content">
+                                            <h4><?php _e('Select Themes', 'quiz-master-next'); ?></h4>
+                                            <span><?php _e('Use pre-made theme to speed up the things.', 'quiz-master-next'); ?></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="qsm-new_menu_tab_li" data-show="addons_list">
-                            <a href="#">
-                                <div class="nav-item-label">                                    
-                                    <span class="nav-item-label-icon dashicons dashicons-welcome-add-page"></span>
-                                    <div class="nav-item-label-content">
-                                        <h4><?php _e('Addons', 'quiz-master-next'); ?></h4>
-                                        <span><?php _e('Use 40+ addons to customize the quiz.', 'quiz-master-next'); ?></span>
+                                </a>
+                            </li>
+                            <li class="qsm-new_menu_tab_li" data-show="addons_list">
+                                <a href="#">
+                                    <div class="nav-item-label">                                    
+                                        <span class="nav-item-label-icon dashicons dashicons-welcome-add-page"></span>
+                                        <div class="nav-item-label-content">
+                                            <h4><?php _e('Addons', 'quiz-master-next'); ?></h4>
+                                            <span><?php _e('Use 40+ addons to customize the quiz.', 'quiz-master-next'); ?></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                    <div id="quiz_settings" class="qsm-new-menu-elements">
-                        <div class="input-group">
-                            <label for="rmp-menu-name"><?php _e('Quiz Name', 'quiz-master-next'); ?></label>
-                            <input type="text" class="quiz_name" name="quiz_name" value="" required="">
-                        </div>
-                        <?php
-                        $all_settings          = $mlwQuizMasterNext->quiz_settings->load_setting_fields( 'quiz_options' );
-                        $quiz_setting_option = array(
-                            'form_type' => array(
-                                'option_name' => 'Form Type',
-                                'value' => 0
-                            ),
-                            'system' => array(
-                                'option_name' => 'Graded System',
-                                'value' => 0
-                            ),
-                            'require_log_in' => array(
-                                'option_name' => 'Require User Login',
-                                'value' => 0
-                            )
-                        );
-                        $quiz_setting_option = apply_filters('qsm_quiz_wizard_settings_option', $quiz_setting_option);
-                        if( $quiz_setting_option ){
-                            foreach ( $quiz_setting_option as $key => $single_setting ) {
-                                $key              = array_search( $key, array_column( $all_settings, 'id' ) );
-                                $field            = $all_settings[ $key ];
-                                $field['label']   = $single_setting['option_name'];
-                                $field['default'] = $single_setting['value'];
-                                echo '<div class="input-group">';
-                                QSM_Fields::generate_field( $field, $single_setting['value'] );
-                                echo '</div>';
-                            }
-                        } else {
-                            _e('No settings found!', 'quiz-master-next');
-                        }
-                        ?>
-                    </div>
-                    <div id="select_themes" class="qsm-new-menu-elements" style="display: none;">                        
-                        <div class="theme-browser rendered">
-                            <div class="themes wp-clearfix">
-                                <?php                        
-                                qsm_get_installed_theme( 'default' );
-                                ?>
+                                </a>
+                            </li>
+                        </ul>                    
+                        <div id="quiz_settings" class="qsm-new-menu-elements">
+                            <div class="input-group">
+                                <label for="rmp-menu-name"><?php _e('Quiz Name', 'quiz-master-next'); ?></label>
+                                <input type="text" class="quiz_name" name="quiz_name" value="" required="">
                             </div>
-                        </div>
-                    </div>
-                    <div id="addons_list" class="qsm-new-menu-elements" style="display: none;">
-                        <?php
-                        $addons = array(
-                            array(
-                                'name' => 'Reporting And Analysis',
-                                'link' => 'https://quizandsurveymaster.com/downloads/results-analysis/',
-                                'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Reporting-And-Analysis.jpg',
-                                'attribute' => 'recommended'
-                            ),
-                            array(
-                                'name' => 'Export & Import',
-                                'link' => 'https://quizandsurveymaster.com/downloads/export-import/',
-                                'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Export-Import.jpg',
-                                'attribute' => 'recommended'
-                            )
-                        );
-                        $addons = apply_filters('qsm_addon_list_wizard', $addons);
-                        $recommended_addon_str = '';
-                        $recommended_addon_str .= '<ul>';
-                        if( $addons ){
-                            foreach ( $addons as $single_addon ) {
-                                $recommended_addon_str .= '<li>';
-                                if ( isset( $single_addon['attribute'] ) && $single_addon['attribute'] != '' ) {
-                                        $attr                   = $single_addon['attribute'];
-                                        $recommended_addon_str .= '<span class="ra-attr qra-att-' . $attr . '">' . $attr . '</span>';
+                            <?php
+                            $all_settings          = $mlwQuizMasterNext->quiz_settings->load_setting_fields( 'quiz_options' );
+                            $quiz_setting_option = array(
+                                'form_type' => array(
+                                    'option_name' => 'Form Type',
+                                    'value' => 0
+                                ),
+                                'system' => array(
+                                    'option_name' => 'Graded System',
+                                    'value' => 0
+                                ),
+                                'require_log_in' => array(
+                                    'option_name' => 'Require User Login',
+                                    'value' => 0
+                                )
+                            );
+                            $quiz_setting_option = apply_filters('qsm_quiz_wizard_settings_option', $quiz_setting_option);
+                            if( $quiz_setting_option ){
+                                foreach ( $quiz_setting_option as $key => $single_setting ) {
+                                    $key              = array_search( $key, array_column( $all_settings, 'id' ) );
+                                    $field            = $all_settings[ $key ];
+                                    $field['label']   = $single_setting['option_name'];
+                                    $field['default'] = $single_setting['value'];
+                                    echo '<div class="input-group">';
+                                    QSM_Fields::generate_field( $field, $single_setting['value'] );
+                                    echo '</div>';
                                 }
-                                $link                   = isset( $single_addon['link'] ) ? $single_addon['link'] : '';
-                                $recommended_addon_str .= '<a target="_blank" href="' . $link . '">';
-                                if ( isset( $single_addon['img'] ) && $single_addon['img'] != '' ) {
-                                        $img                    = $single_addon['img'];
-                                        $recommended_addon_str .= '<img src="' . $img . '"/>';
-                                }
-                                $recommended_addon_str .= '</a>';
-                                $recommended_addon_str .= '</li>';
+                            } else {
+                                _e('No settings found!', 'quiz-master-next');
                             }
-                        } else {
-                            $recommended_addon_str .= 'No addons found!';
-                        }
-                        $recommended_addon_str .= '</ul>';
-                        echo $recommended_addon_str;
-                        ?>
-                    </div>
-                </main>
+                            ?>
+                        </div>
+                        <div id="select_themes" class="qsm-new-menu-elements" style="display: none;">                        
+                            <div class="theme-browser rendered">
+                                <div class="themes wp-clearfix">
+                                    <?php                        
+                                    qsm_get_installed_theme( 'default' );
+                                    ?>
+                                </div>
+                            </div>
+                        </div>                    
+                        <div id="addons_list" class="qsm-new-menu-elements" style="display: none;">
+                            <?php
+                            $addons = array(
+                                array(
+                                    'name' => 'Reporting And Analysis',
+                                    'link' => 'https://quizandsurveymaster.com/downloads/results-analysis/',
+                                    'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Reporting-And-Analysis.jpg',
+                                    'attribute' => 'recommended'
+                                ),
+                                array(
+                                    'name' => 'Export & Import',
+                                    'link' => 'https://quizandsurveymaster.com/downloads/export-import/',
+                                    'img' => 'https://t6k8i7j6.stackpathcdn.com/wp-content/uploads/edd/2020/04/Export-Import.jpg',
+                                    'attribute' => 'recommended'
+                                )
+                            );
+                            $addons = apply_filters('qsm_addon_list_wizard', $addons);
+                            $recommended_addon_str = '';
+                            $recommended_addon_str .= '<ul>';
+                            if( $addons ){
+                                foreach ( $addons as $single_addon ) {
+                                    $recommended_addon_str .= '<li>';
+                                    if ( isset( $single_addon['attribute'] ) && $single_addon['attribute'] != '' ) {
+                                            $attr                   = $single_addon['attribute'];
+                                            $recommended_addon_str .= '<span class="ra-attr qra-att-' . $attr . '">' . $attr . '</span>';
+                                    }
+                                    $link                   = isset( $single_addon['link'] ) ? $single_addon['link'] : '';
+                                    $recommended_addon_str .= '<a target="_blank" href="' . $link . '">';
+                                    if ( isset( $single_addon['img'] ) && $single_addon['img'] != '' ) {
+                                            $img                    = $single_addon['img'];
+                                            $recommended_addon_str .= '<img src="' . $img . '"/>';
+                                    }
+                                    $recommended_addon_str .= '</a>';
+                                    $recommended_addon_str .= '</li>';
+                                }
+                            } else {
+                                $recommended_addon_str .= 'No addons found!';
+                            }
+                            $recommended_addon_str .= '</ul>';
+                            echo $recommended_addon_str;
+                            ?>
+                        </div>                    
+                    </main>
+                </form>
                 <main class="qsm-popup__content" style="display: none;" id="modal-2-content">
                     <?php
                     $qsm_quiz_templates = array(
@@ -626,7 +629,7 @@ function qsm_create_new_quiz_wizard(){
                     $keys = array_column($qsm_quiz_templates, 'priority');
                     array_multisort($keys, SORT_ASC, $qsm_quiz_templates);
                     ?>
-                    <form action="" method="post" id="new-quiz-form">
+                    <form action="" method="post">
                         <div class="qsm-wizard-template-section">
                             <?php wp_nonce_field('qsm_new_quiz', 'qsm_new_quiz_nonce'); ?>
                             <input type="text" class="quiz_name" name="quiz_name" value="" placeholder="<?php _e('Enter quiz name here', 'quiz-master-next'); ?>" required/>
