@@ -30,9 +30,9 @@ function qmn_question_type_file_upload() {
 /**
  * This function shows the content of the file upload
  *
- * @params $id The ID of the multiple choice question
- * @params $question The question that is being edited.
- * @params @answers The array that contains the answers to the question.
+ * @param $id The ID of the multiple choice question
+ * @param $question The question that is being edited.
+ * @param @answers The array that contains the answers to the question.
  * @return $question_display Contains all the content of the question
  * @since 6.3.7
  */
@@ -232,7 +232,7 @@ function qmn_date_display( $id, $question, $answers ) {
 		$mlw_requireClass = '';}
 	// $question_title = apply_filters('the_content', $question);
 	$new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'question_title' );
-	$question_display  .= qsm_question_title_func( $question, '', $new_question_title, $id );
+	$question_display  .= qsm_question_title_func( $question, '', $new_question_title );
 	$question_display  .= "<input type='date' class='mlw_answer_date $mlw_requireClass' name='question" . $id . "' id='question" . $id . "' value=''/>";
 	// $question_display .= "<script>jQuery(document).ready(function () { jQuery('#question".$id."').datepicker();  });</script>";
 	return apply_filters( 'qmn_date_display_front', $question_display, $id, $question, $answers );
@@ -708,14 +708,14 @@ function qmn_large_open_review( $id, $question, $answers ) {
 	);
 	if ( isset( $_POST[ 'question' . $id ] ) ) {
 		$decode_user_answer = sanitize_textarea_field( strval( stripslashes( htmlspecialchars_decode( $_POST[ 'question' . $id ], ENT_QUOTES ) ) ) );
-		$mlw_user_answer    = trim( preg_replace( '/\s\s+/', ' ', str_replace( "\n", ' ', $decode_user_answer ) ) );
+		$mlw_user_answer    = trim( $decode_user_answer );
 	} else {
 		$mlw_user_answer = ' ';
 	}
 	$return_array['user_text'] = $mlw_user_answer;
 	foreach ( $answers as $answer ) {
 		$decode_correct_text          = strval( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) );
-		$return_array['correct_text'] = trim( preg_replace( '/\s\s+/', ' ', str_replace( "\n", ' ', $decode_correct_text ) ) );
+		$return_array['correct_text'] = trim( $decode_correct_text );
 		if ( mb_strtoupper( $return_array['user_text'] ) == mb_strtoupper( $return_array['correct_text'] ) ) {
 			$return_array['correct'] = 'correct';
 			$return_array['points']  = $answer[1];
