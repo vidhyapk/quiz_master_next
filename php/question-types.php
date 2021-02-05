@@ -119,13 +119,19 @@ function qmn_multiple_choice_display( $id, $question, $answers ) {
 		foreach ( $answers as $answer ) {
 			$mlw_answer_total++;
 			if ( $answer[0] != '' ) {
-				if ( $answerEditor === 'rich' ) {
+				if ( $answerEditor === 'rich' || $answerEditor === 'image' ) {
 					$question_display .= "<div class='qmn_mc_answer_wrap' id='question$id-$mlw_answer_total'>";
 				} else {
 					$question_display .= "<div class='qmn_mc_answer_wrap' id='question" . $id . '-' . str_replace( ' ', '-', esc_attr( $answer[0] ) ) . "'>";
 				}
 				$question_display .= "<input type='radio' class='qmn_quiz_radio' name='question" . $id . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . $answer[0] . "' />";
-				$question_display .= "<label for='question" . $id . '_' . $mlw_answer_total . "'>" . trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) ) . '</label>';
+				$question_display .= "<label for='question" . $id . '_' . $mlw_answer_total . "'>";
+				if( $answerEditor === 'image' ){
+					$question_display .= '<img src="'. trim( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) .'" />';
+				} else {
+					$question_display .= trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) );
+				}
+				$question_display .= '</label>';
 				$question_display .= '</div>';
 			}
 		}
@@ -302,7 +308,9 @@ function qmn_horizontal_multiple_choice_display( $id, $question, $answers ) {
 	if ( $required == 0 ) {
 		$mlw_requireClass = 'mlwRequiredRadio';
 	} else {
-		$mlw_requireClass = '';}
+		$mlw_requireClass = '';
+	}
+	$answerEditor = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'answerEditor' );
 	// $question_title = apply_filters('the_content', $question);
 	$new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'question_title' );
 	$question_display  .= qsm_question_title_func( $question, 'horizontal_multiple_choice', $new_question_title, $id );
@@ -312,7 +320,13 @@ function qmn_horizontal_multiple_choice_display( $id, $question, $answers ) {
 		foreach ( $answers as $answer ) {
 			$mlw_answer_total++;
 			if ( $answer[0] != '' ) {
-				$question_display .= "<span class='mlw_horizontal_choice'><input type='radio' class='qmn_quiz_radio' name='question" . $id . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . $answer[0] . "' /><label for='question" . $id . '_' . $mlw_answer_total . "'>" . trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) ) . '</label></span>';
+				$question_display .= "<span class='mlw_horizontal_choice'><input type='radio' class='qmn_quiz_radio' name='question" . $id . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . $answer[0] . "' /><label for='question" . $id . '_' . $mlw_answer_total . "'>";
+				if( $answerEditor === 'image' ){
+					$question_display .= '<img src="'. trim( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) .'" />';
+				} else {
+					$question_display .= trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) );
+				}				 
+				$question_display .= '</label></span>';
 			}
 		}
 		$question_display .= "<input type='radio' style='display: none;' name='question" . $id . "' id='question" . $id . "_none' checked='checked' value='' />";
@@ -588,6 +602,7 @@ function qmn_multiple_response_display( $id, $question, $answers ) {
 		$mlw_requireClass = '';}
 	// $question_title = apply_filters('the_content', $question);
 	$new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'question_title' );
+        $answerEditor = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'answerEditor' );
 	$question_display  .= qsm_question_title_func( $question, '', $new_question_title, $id );
 	$question_display  .= "<div class='qmn_check_answers $mlw_requireClass'>";
 	if ( is_array( $answers ) ) {
@@ -597,7 +612,13 @@ function qmn_multiple_response_display( $id, $question, $answers ) {
 			if ( $answer[0] != '' ) {
 				$question_display .= '<div class="qsm_check_answer">';
 				$question_display .= "<input type='hidden' name='question" . $id . "' value='This value does not matter' />";
-				$question_display .= "<input type='checkbox' " . $limit_mr_text . " name='question" . $id . '_' . $mlw_answer_total . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . esc_attr( $answer[0] ) . "' /> <label for='question" . $id . '_' . $mlw_answer_total . "'>" . trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) ) . '</label>';
+				$question_display .= "<input type='checkbox' " . $limit_mr_text . " name='question" . $id . '_' . $mlw_answer_total . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . esc_attr( $answer[0] ) . "' /> <label for='question" . $id . '_' . $mlw_answer_total . "'>";
+                                if( $answerEditor === 'image' ){
+                                    $question_display .= '<img src="'. trim( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) .'" />';
+				} else {
+                                    $question_display .= trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) );
+				}
+                                $question_display .= '</label>';
 				$question_display .= '</div>';
 			}
 		}
@@ -991,6 +1012,7 @@ function qmn_horizontal_multiple_response_display( $id, $question, $answers ) {
 		$limit_mr_text = 'onchange="qsmCheckMR(this,' . $limit_multiple_response . ')"';
 	}
 	$new_question_title = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'question_title' );
+        $answerEditor = $mlwQuizMasterNext->pluginHelper->get_question_setting( $id, 'answerEditor' );
 	$question_display  .= qsm_question_title_func( $question, '', $new_question_title, $id );
 	$question_display  .= "<div class='qmn_check_answers qmn_multiple_horizontal_check $mlw_requireClass'>";
 	if ( is_array( $answers ) ) {
@@ -999,7 +1021,13 @@ function qmn_horizontal_multiple_response_display( $id, $question, $answers ) {
 			$mlw_answer_total++;
 			if ( $answer[0] != '' ) {
 				$question_display .= "<input type='hidden' name='question" . $id . "' value='This value does not matter' />";
-				$question_display .= "<span class='mlw_horizontal_multiple'><input type='checkbox' " . $limit_mr_text . " name='question" . $id . '_' . $mlw_answer_total . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . esc_attr( $answer[0] ) . "' /> <label for='question" . $id . '_' . $mlw_answer_total . "'>" . trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) ) . '&nbsp;</label></span>';
+				$question_display .= "<span class='mlw_horizontal_multiple'><input type='checkbox' " . $limit_mr_text . " name='question" . $id . '_' . $mlw_answer_total . "' id='question" . $id . '_' . $mlw_answer_total . "' value='" . esc_attr( $answer[0] ) . "' /> <label for='question" . $id . '_' . $mlw_answer_total . "'>";
+                                if( $answerEditor === 'image' ){
+                                    $question_display .= '<img src="'. trim( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) .'" />';
+				} else {
+                                    $question_display .= trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) );
+				}                                        
+                                $question_display .= '&nbsp;</label></span>';
 			}
 		}
 	}
