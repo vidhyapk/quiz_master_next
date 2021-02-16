@@ -198,6 +198,7 @@
     background: #fff;
     padding: 20px 10px 20px 10px;
     border-bottom: 1px solid #dfd4d4;
+    display: none;
 }
 #model-wizard .qsm-popup__title{
     font-size: 24px;
@@ -483,14 +484,14 @@ h2.hndle.ui-sortable-handle {
     font-weight: normal;
 }
 #model-wizard .qsm-new-menu-elements{
-    width: 100%;
+    width: 97%;
     padding: 2%;
     margin-bottom: 60px;
     height: 100%;
 }
 #model-wizard #modal-2-content{
     background: #f3f3f3;
-    display: flex;    
+    /*display: flex;*/    
     margin: 0;
 }
 #model-wizard .qsm-new-menu-elements .input-group {
@@ -523,12 +524,16 @@ h2.hndle.ui-sortable-handle {
     border: solid 1px #dddddd;
 }
 #select_themes .theme{
-    width: 45.6%;
+    width: 30.6%;
+    margin: 0 3% 2% 0;
+}
+#select_themes .theme:nth-child(3n){
+    margin-right: 0;
 }
 #addons_list ul{
-    columns: 2;
-    -webkit-columns: 2;    
-    -moz-columns: 2;    
+    columns: 3;
+    -webkit-columns: 3;
+    -moz-columns: 3;
 }
 #addons_list ul li{
     position: relative;
@@ -554,9 +559,62 @@ h2.hndle.ui-sortable-handle {
 #addons_list ul li img{
     max-width: 100%;
 }
-/**
-* New 
+/*
+* New wizard style
 */
+.qsm-wizard-menu{
+    width: 100%;
+    display: flex;
+    padding: 20px;
+    background: #fff;
+}
+.qsm-wizard-menu .qsm-wizard-wrap{
+    margin-right: 60px;
+}
+.qsm-wizard-menu .qsm-wizard-wrap:not(.active){
+    opacity: 0.5;
+}
+.qsm-wizard-menu .qsm-wizard-step-number{
+    background: #0085BA;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    display: inline-block;
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 10px;
+}
+.qsm-wizard-menu .qsm-wizard-step-text{
+    display: inline-block;
+    font-size: 24px;
+    text-transform: capitalize;
+    position: relative;
+    top: 3px;
+}
+.theme-sub-menu{
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+.theme-sub-menu li{
+    display: inline-block;
+    margin-right: 15px;
+    border-right: 1px solid #ccc;
+    padding-right: 15px;
+}
+.theme-sub-menu li:last-child{
+    border-right: medium none;
+}
+.theme-sub-menu li.active a{
+    color: #0073aa;
+}
+.theme-sub-menu li a{
+    color: #888888;
+    text-decoration: none;
+    font-size: 16px;
+}
 @media screen and (min-width: 1200px){
     #quiz_settings_wrapper tr td fieldset > br{
         display: none;

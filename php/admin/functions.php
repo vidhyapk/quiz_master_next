@@ -354,8 +354,22 @@ function qsm_create_new_quiz_wizard(){
                 </header>
                 <form action="" method="post" id="new-quiz-form">
                     <?php wp_nonce_field('qsm_new_quiz', 'qsm_new_quiz_nonce'); ?>
-                    <main class="qsm-popup__content" id="modal-2-content">                    
-                        <ul class="qsm-new_menu_tab_items">
+                    <main class="qsm-popup__content" id="modal-2-content">
+                        <div class="qsm-wizard-menu">
+                            <div class="qsm-wizard-wrap active" data-show="select_themes">
+                                <span class="qsm-wizard-step-number">1</span>
+                                <span class="qsm-wizard-step-text"><?php echo _e('Select themes', 'quiz-master-next'); ?></span>
+                            </div>
+                            <div class="qsm-wizard-wrap" data-show="quiz_settings">
+                                <span class="qsm-wizard-step-number">2</span>
+                                <span class="qsm-wizard-step-text"><?php echo _e('Menu Settings', 'quiz-master-next'); ?></span>
+                            </div>
+                            <div class="qsm-wizard-wrap" data-show="addons_list">
+                                <span class="qsm-wizard-step-number">3</span>
+                                <span class="qsm-wizard-step-text"><?php echo _e('Complete', 'quiz-master-next'); ?></span>
+                            </div>
+                        </div>
+                        <ul style="display: none;" class="qsm-new_menu_tab_items">
                             <li class="qsm-new_menu_tab_li active" data-show="quiz_settings">
                                 <a href="#">
                                     <div class="nav-item-label">
@@ -390,7 +404,7 @@ function qsm_create_new_quiz_wizard(){
                                 </a>
                             </li>
                         </ul>                    
-                        <div id="quiz_settings" class="qsm-new-menu-elements">
+                        <div id="quiz_settings" class="qsm-new-menu-elements" style="display: none;">
                             <div class="input-group">
                                 <label for="rmp-menu-name"><?php _e('Quiz Name', 'quiz-master-next'); ?></label>
                                 <input type="text" class="quiz_name" name="quiz_name" value="" required="">
@@ -427,12 +441,21 @@ function qsm_create_new_quiz_wizard(){
                             }
                             ?>
                         </div>
-                        <div id="select_themes" class="qsm-new-menu-elements" style="display: none;">                        
+                        <div id="select_themes" class="qsm-new-menu-elements">                        
                             <div class="theme-browser rendered">
                                 <div class="themes wp-clearfix">
-                                    <?php                        
-                                    qsm_get_installed_theme( 'default' );
-                                    ?>
+                                    <ul class="theme-sub-menu">
+                                        <li class="active"><a data-show="downloaded_theme" href="#"><?php _e('Downloaded', 'quiz-master-next'); ?></a></li>
+                                        <li><a data-show="browse_themes" href="#"><?php _e('Browse Themes', 'quiz-master-next'); ?></a></li>
+                                    </ul>
+                                    <div id="downloaded_theme">
+                                        <?php
+                                        qsm_get_installed_theme( 'default' );
+                                        ?>
+                                    </div>
+                                    <div id="browse_themes">
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>                    

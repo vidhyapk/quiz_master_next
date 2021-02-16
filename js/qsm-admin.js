@@ -223,5 +223,13 @@ var QSMQuizzesSurveys;
         $('#' + id).show();
         e.preventDefault();
     });
+    $(document).on('click', '.qsm-wizard-wrap', function(e){
+        $('.qsm-wizard-menu .qsm-wizard-wrap').removeClass('active');
+        $(this).addClass('active');
+        $('.qsm-new-menu-elements').hide();
+        var id = $(this).attr('data-show');
+        $('#' + id).show();
+        e.preventDefault();
+    });
   });
 }(jQuery));
