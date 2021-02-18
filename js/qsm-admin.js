@@ -231,5 +231,20 @@ var QSMQuizzesSurveys;
         $('#' + id).show();
         e.preventDefault();
     });
+    $(document).on('click', '.theme-sub-menu li', function(e){
+        e.preventDefault();
+        var id = $(this).children('a').attr('data-show');        
+        $('.theme-sub-menu li').removeClass('active');        
+        $(this).addClass('active');
+        $('.theme-wrap').hide();        
+        $('#' + id).show();
+    });
+    $(document).on('click', '#downloaded_theme .theme-wrapper', function(e){
+        e.preventDefault();
+        $('#downloaded_theme .theme-wrapper').removeClass('active');
+        $('#downloaded_theme .theme-wrapper').find('.qsm-activate-theme').html('').html('Select Theme');
+        $(this).addClass('active');
+        $('#downloaded_theme .theme-wrapper.active').find('.qsm-activate-theme').html('').html('Selected Theme');
+    });
   });
 }(jQuery));

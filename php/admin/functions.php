@@ -362,11 +362,11 @@ function qsm_create_new_quiz_wizard(){
                             </div>
                             <div class="qsm-wizard-wrap" data-show="quiz_settings">
                                 <span class="qsm-wizard-step-number">2</span>
-                                <span class="qsm-wizard-step-text"><?php echo _e('Menu Settings', 'quiz-master-next'); ?></span>
+                                <span class="qsm-wizard-step-text"><?php echo _e('Quiz Settings', 'quiz-master-next'); ?></span>
                             </div>
                             <div class="qsm-wizard-wrap" data-show="addons_list">
                                 <span class="qsm-wizard-step-number">3</span>
-                                <span class="qsm-wizard-step-text"><?php echo _e('Complete', 'quiz-master-next'); ?></span>
+                                <span class="qsm-wizard-step-text"><?php echo _e('Addons', 'quiz-master-next'); ?></span>
                             </div>
                         </div>
                         <ul style="display: none;" class="qsm-new_menu_tab_items">
@@ -448,13 +448,23 @@ function qsm_create_new_quiz_wizard(){
                                         <li class="active"><a data-show="downloaded_theme" href="#"><?php _e('Downloaded', 'quiz-master-next'); ?></a></li>
                                         <li><a data-show="browse_themes" href="#"><?php _e('Browse Themes', 'quiz-master-next'); ?></a></li>
                                     </ul>
-                                    <div id="downloaded_theme">
+                                    <div class="theme-wrap" id="downloaded_theme">
                                         <?php
-                                        qsm_get_installed_theme( 'default' );
+                                        qsm_get_installed_theme( 'default', 'wizard_theme_list' );
                                         ?>
                                     </div>
-                                    <div id="browse_themes">
-                                        
+                                    <div class="theme-wrap" id="browse_themes" style="display: none;">
+                                        <div class="theme-wrapper theme ">                                            
+                                            <div class="theme-screenshot">
+                                                <img src="http://localhost/work/et/qsm/wp-content/uploads/qsm_themes/dark-quiz/screenshot.png">
+                                            </div>                                            
+                                            <div class="theme-id-container">
+                                                <h2 class="theme-name" id="emarket-name">QSM Dark Theme</h2>
+                                                <div class="theme-actions">                                                                                        
+                                                    <a class="button button-primary load-customize hide-if-no-customize" href="#">Live Preview</a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -811,7 +821,7 @@ function qsm_admin_page_access_func(){
 }
 add_action('admin_page_access_denied', 'qsm_admin_page_access_func');
 
-function qsm_get_installed_theme( $saved_quiz_theme ){
+function qsm_get_installed_theme( $saved_quiz_theme, $wizard_theme_list = '' ){
     $folder_name = QSM_THEME_PATH;
     $folder_slug = QSM_THEME_SLUG;
     $theme_folders = array();
@@ -821,7 +831,7 @@ function qsm_get_installed_theme( $saved_quiz_theme ){
     $theme_folders = apply_filters('qsm_theme_list', $theme_folders);
     ?>
     <div class="theme-wrapper theme <?php
-    if ($saved_quiz_theme == '') {
+    if ($saved_quiz_theme == '' || $saved_quiz_theme == 'default') {
         echo 'active';
     }
     ?>">
@@ -863,8 +873,15 @@ function qsm_get_installed_theme( $saved_quiz_theme ){
                         <div class="theme-id-container">
                             <h2 class="theme-name" id="emarket-name"><?php echo $read_style_data['Name']; ?></h2>
                             <div class="theme-actions">
-                                <?php if ($saved_quiz_theme != $theme_name) { ?>
-                                    <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                                <?php if ($saved_quiz_theme != $theme_name) {
+                                    if( $wizard_theme_list == 'wizard_theme_list' ){ ?>
+                                        <button class="button qsm-activate-theme"><?php _e('Select Theme', 'quiz-master-next'); ?></button>
+                                    <?php                                     
+                                    } else { ?>
+                                        <button class="button qsm-activate-theme"><?php _e('Activate', 'quiz-master-next'); ?></button>
+                                    <?php                                    
+                                    }
+                                    ?>                                    
                                     <a class="button button-primary load-customize hide-if-no-customize" href="#"><?php _e('Live Preview', 'quiz-master-next') ?></a>
                                 <?php } ?>
                                 <?php if ($saved_quiz_theme == $theme_name) { ?>
