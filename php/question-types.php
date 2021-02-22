@@ -132,6 +132,7 @@ function qmn_multiple_choice_display( $id, $question, $answers ) {
 					$question_display .= trim( do_shortcode( htmlspecialchars_decode( $answer[0], ENT_QUOTES ) ) );
 				}
 				$question_display .= '</label>';
+                                $question_display = apply_filters('qsm_multiple_choice_display_loop', $question_display, $id, $question, $answers);
 				$question_display .= '</div>';
 			}
 		}
