@@ -1200,6 +1200,7 @@ jQuery(function() {
 				},
 				success: function (response) {
 					var data = jQuery.parseJSON(response);
+					console.log(response);
 					$this.find('.quick-question-res-p').remove();
 					$this.find('.qsm-inline-correct-info').remove();
 					if (data.success == 'correct') {
@@ -1255,8 +1256,8 @@ jQuery(function() {
 						
 						
 
-						$this.append('<div style="color: red" class="quick-question-res-p">' + qmn_quiz_data[ quizID ].quick_result_wrong_answer_text + '</div>')
-						$this.append('<div class="qsm-inline-correct-info">' + data.message + '</div>');
+						$this.append('<div style="color: red" class="quick-question-res-p">' + qmn_quiz_data[ quizID ].quick_result_wrong_answer_text + 'uuuuuuuuuuu</div>')
+						$this.append('<div class="qsm-inline-correct-info">' + data.message + 'dddddddddddddd</div>');
 
 						 setTimeout(function() {
    							 $quizForm.closest( '.qmn_quiz_container' ).find('.qsm-submit-btn').trigger('click');

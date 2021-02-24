@@ -315,7 +315,34 @@ class QMNQuizManager {
 					$qpages[$qpage['id']] = $qpage;
 				}
 			}
-            $qmn_json_data = array(
+			// Default Wrong text is overlaped with new text in wrong answer alert box.
+			$qmn_quiz_options = $mlwQuizMasterNext->quiz_settings->get_quiz_options();
+			$questions = QSM_Questions::load_questions_by_pages($qmn_array_for_variables['quiz_id']);
+			$results_arrayval = array();
+			$j=1; 
+			foreach ($questions as $key => $question) {
+				$counter = $j++;
+				 $results_array2 = apply_filters('qmn_results_array', $mlwQuizMasterNext->pluginHelper->display_review($question['question_type_new'], $question['question_id']));
+				 if($question['question_type_new'] == 0){
+				 $str_wrong_text = str_replace('%CORRECT_ANSWER%', $results_array2["correct_text"], $qmn_quiz_options->quick_result_wrong_answer_text);
+					 if(isset($str_wrong_text) ){
+						 if($counter == $question['question_id']){
+						 // $results_arrayval[$j++] .=  $str_wrong_text;
+						  array_push($results_arrayval, $str_wrong_text);
+						 }
+					 }
+					
+				 }
+			}
+			
+			$arrvar= array();
+			for($i=0;$i<count($results_arrayval);$i++)
+			{		
+				
+			   $arrvar[] = $results_arrayval[$i];
+			}
+			//print_r($arrvar);
+			 $qmn_json_data = array(			
 				'quiz_id' => $qmn_array_for_variables['quiz_id'],
 				'quiz_name' => $qmn_array_for_variables['quiz_name'],
 				'disable_answer' => $qmn_quiz_options->disable_answer_onselect,
@@ -332,8 +359,11 @@ class QMNQuizManager {
                 'form_disable_autofill' => isset($qmn_quiz_options->form_disable_autofill) ? $qmn_quiz_options->form_disable_autofill : '',
 				'enable_quick_correct_answer_info' => isset($qmn_quiz_options->enable_quick_correct_answer_info) ? $qmn_quiz_options->enable_quick_correct_answer_info : 0,
 				'quick_result_correct_answer_text' => $qmn_quiz_options->quick_result_correct_answer_text,
-				'quick_result_wrong_answer_text' => $qmn_quiz_options->quick_result_wrong_answer_text,
+				'quick_result_wrong_answer_text' => $arrvar,
+				//'quick_result_wrong_answer_text' => $qmn_quiz_options->quick_result_wrong_answer_text,
 			);
+			
+			
 
             $return_display = apply_filters('qmn_begin_shortcode', $return_display, $qmn_quiz_options, $qmn_array_for_variables);
 
